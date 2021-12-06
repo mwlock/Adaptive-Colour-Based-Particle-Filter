@@ -1,0 +1,27 @@
+%% Initial Script
+%
+% This file is used as an inital test script for implementing 
+% "3D Trajectory Prediction of Basketball Shot Using Filtering Techniques
+% and Computer Vision" project. The project is a self picked topic for implementation
+% in the Appied Estimation course at% the KTH Royal Institute of Technology in 2021.
+%
+% Authors : 
+% Matthew William Lock (mwlock@kth.se)
+% Miguel Garcia Naude (magn2@kth.se)
+
+%% Initalise environment
+
+close all; clc; clear;
+image = imread('freeshot.jpg');
+
+
+%% Find ball in static frame (https://se.mathworks.com/help/images/ref/imfindcircles.html)
+
+ball_radius_range = [15 100]; % note that this metric is in pixels        
+[centers, radii, metric] = imfindcircles(image,ball_radius_range);
+
+% 
+
+centersStrong5 = centers(1:5,:); 
+radiiStrong5 = radii(1:5);
+metricStrong5 = metric(1:5);
