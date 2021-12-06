@@ -26,3 +26,4 @@ Included in this section is a list of papers we found to be interesting and of v
 
 - [NBA Player Shooting Motions: A Data Dump](https://www.inpredictable.com/2021/01/nba-player-shooting-motions-data-dump.html)
 - [Perfecting Your Basketball Free-Throw Shot](https://www.youtube.com/watch?v=2IBe7mryJxc&ab_channel=MonkeySee)
+- [Free Throw full side view](https://www.youtube.com/watch?v=HhQKmyE5l3s&ab_channel=JalisaIngram)
