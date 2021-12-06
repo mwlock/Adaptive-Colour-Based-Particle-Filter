@@ -20,4 +20,6 @@ Included in this section is a list of papers we found to be interesting and of v
 | Prediction-of-Trajectory-with-kalman-filter-and-open-cv                              	| Pablo Saura                                  	| [github](https://github.com/pabsaura/Prediction-of-Trajectory-with-kalman-filter-and-open-cv)                                                           	|                                               	|
 
 
+## Datasets
 
+- [https://www.inpredictable.com/2021/01/nba-player-shooting-motions-data-dump.html](https://www.inpredictable.com/2021/01/nba-player-shooting-motions-data-dump.html)
