@@ -1,0 +1,32 @@
+%% Finding ball in video
+%
+% This file is used as an inital test script for implementing 
+% "3D Trajectory Prediction of Basketball Shot Using Filtering Techniques
+% and Computer Vision" project. The project is a self picked topic for implementation
+% in the Appied Estimation course at% the KTH Royal Institute of Technology in 2021.
+%
+% Authors : 
+% Matthew William Lock (mwlock@kth.se)
+% Miguel Garcia Naude (magn2@kth.se)
+
+%% Initalise environment
+
+close all; clc; clear;
+videos = ["shot_1.mp4"];
+video = videos(1);
+
+%% Load video
+v = VideoReader(video);
+
+% Get number of frames
+numFrames = 0;
+while hasFrame(v)
+    readFrame(v);
+    numFrames = numFrames + 1;
+end
+
+%% Load video frames
+
+for i = 1:numFrames
+
+frame = read(v,100);
