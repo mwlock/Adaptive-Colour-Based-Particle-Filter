@@ -27,8 +27,7 @@ Included in this section is a list of papers we found to be interesting and of v
 | Resource |  Author  |   Link   |
 |:--------:|:--------:|:--------:|
 | Introduction to Kalman Filters for Object Tracking                                   	| mathworks                                    	| [mathworks](https://se.mathworks.com/videos/introduction-to-kalman-filters-for-object-tracking-79674.html)                                              	
-| Filter Image such that only certain colours show | Matlab | https://www.mathworks.com/matlabcentral/answers/230051-filter-image-such-that-only-certain-colours-show |
-| Example1 | Example1 | Example1 |
+| Filter Image such that only certain colours show | Matlab | [matlab](https://www.mathworks.com/matlabcentral/answers/230051-filter-image-such-that-only-certain-colours-show) |
 
 ## Datasets
 
