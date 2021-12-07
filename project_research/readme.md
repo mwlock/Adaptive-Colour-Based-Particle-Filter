@@ -28,9 +28,11 @@ Included in this section is a list of papers we found to be interesting and of v
 |:--------:|:--------:|:--------:|
 | Introduction to Kalman Filters for Object Tracking                                   	| mathworks                                    	| [mathworks](https://se.mathworks.com/videos/introduction-to-kalman-filters-for-object-tracking-79674.html)                                              	
 | Filter Image such that only certain colours show | Matlab | [matlab](https://www.mathworks.com/matlabcentral/answers/230051-filter-image-such-that-only-certain-colours-show) |
+| Tracking basketball players with multi-camera networks | Federico Castanedo | [youtube](https://www.youtube.com/watch?v=3aRDaDVYB5Q),[github](https://github.com/fcastanedo/apidis) |
+| Tracking using Particle Filter and Backprojection | Massimiliano Patacchiola | [youtube](https://www.youtube.com/watch?v=KTxVBN5-KpE),[github](https://github.com/mpatacchiola/deepgaze) |
 
 ## Datasets
-
+- [APIDIS basket ball dataset](https://sites.uclouvain.be/ispgroup/Softwares/APIDIS)
 - [NBA Player Shooting Motions: A Data Dump](https://www.inpredictable.com/2021/01/nba-player-shooting-motions-data-dump.html)
 - [Perfecting Your Basketball Free-Throw Shot](https://www.youtube.com/watch?v=2IBe7mryJxc&ab_channel=MonkeySee)
 - [Free Throw full side view](https://www.youtube.com/watch?v=HhQKmyE5l3s&ab_channel=JalisaIngram)
