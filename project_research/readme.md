@@ -20,6 +20,7 @@ Included in this section is a list of papers we found to be interesting and of v
 | Prediction-of-Trajectory-with-kalman-filter-and-open-cv                              	| Pablo Saura                                  	| [github](https://github.com/pabsaura/Prediction-of-Trajectory-with-kalman-filter-and-open-cv)                                                         
 | Particle Filter-Based Fingertip Tracking with Circular Hough Transform Features      	| Tamim Asfour<br>Rüdiger Dillmann             	| [researchgate](https://www.researchgate.net/publication/267990777_Particle_Filter-Based_Fingertip_Tracking_with_Circular_Hough_Transform_Features)      	|
 | Particle filtering for target tracking                                               	| Sumakanth S Kambhampati et al                	| [researchgate](https://www.researchgate.net/publication/228804791_Particle_filtering_for_target_tracking)                                               	|                                      	|
+| Object tracking in video via particle filter                                               	| Hamd Ait Abdelali et al                	| [researchgate](https://www.researchgate.net/publication/311157710_Object_tracking_in_video_via_particle_filter)                                               	|                                      	|
 
 
 ## Material of Interest
