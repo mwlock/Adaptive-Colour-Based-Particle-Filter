@@ -26,7 +26,7 @@ Included in this section is a list of papers we found to be interesting and of v
 
 | Resource |  Author  |   Link   |
 |:--------:|:--------:|:--------:|
-| Example1 | Eaxmple1 | Eaxmple1 |
+| Filter Image such that only certain colours show | Matlab | https://www.mathworks.com/matlabcentral/answers/230051-filter-image-such-that-only-certain-colours-show |
 | Example1 | Example1 | Example1 |
 
 ## Datasets
