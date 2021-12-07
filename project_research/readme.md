@@ -22,6 +22,13 @@ Included in this section is a list of papers we found to be interesting and of v
 | Particle Filter-Based Fingertip Tracking with Circular Hough Transform Features      	| Tamim Asfour<br>Rüdiger Dillmann             	| [researchgate](https://www.researchgate.net/publication/267990777_Particle_Filter-Based_Fingertip_Tracking_with_Circular_Hough_Transform_Features)      	|
 
 
+## Material of Interest
+
+| Resource |  Author  |   Link   |
+|:--------:|:--------:|:--------:|
+| Example1 | Eaxmple1 | Eaxmple1 |
+| Example1 | Example1 | Example1 |
+
 ## Datasets
 
 - [NBA Player Shooting Motions: A Data Dump](https://www.inpredictable.com/2021/01/nba-player-shooting-motions-data-dump.html)
