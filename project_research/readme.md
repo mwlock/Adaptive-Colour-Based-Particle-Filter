@@ -21,6 +21,7 @@ Included in this section is a list of papers we found to be interesting and of v
 | Particle Filter-Based Fingertip Tracking with Circular Hough Transform Features      	| Tamim Asfour<br>Rüdiger Dillmann             	| [researchgate](https://www.researchgate.net/publication/267990777_Particle_Filter-Based_Fingertip_Tracking_with_Circular_Hough_Transform_Features)      	|
 | Particle filtering for target tracking                                               	| Sumakanth S Kambhampati et al                	| [researchgate](https://www.researchgate.net/publication/228804791_Particle_filtering_for_target_tracking)                                               	|                                      	|
 | Object tracking in video via particle filter                                               	| Hamd Ait Abdelali et al                	| [researchgate](https://www.researchgate.net/publication/311157710_Object_tracking_in_video_via_particle_filter)                                               	|                                      	|
+| A Color-based Particle Filter                                               	| Esther Koller-Meier et al                	| [researchgate](https://www.researchgate.net/publication/2863597_A_Color-based_Particle_Filter)                                               	|                                      
 
 
 ## Material of Interest

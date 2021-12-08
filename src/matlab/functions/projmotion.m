@@ -11,17 +11,7 @@ t = hangtime;
 
 vix = v0*cos(angle);
 viy = v0*sin(angle);
-viz = v0*cos(angle)*sin(angle)*t
-
-
-% x = x0+vix*t;
-% z = z0+viz*t;
-% y = y0+viy*t-(g*t.^2)/2;
-% 
-% 
-% maxheight = y0 + (viy)^2./(2*g)
-% xheight = x0 + vix*(t/2);
-% zheight = z0 + viz*t + 2
+% viz = v0*cos(angle)*sin(angle)*t
 
 if theta >90
     error('Please select angle value of 90 degrees or less')
@@ -60,9 +50,9 @@ index = 1;
 for k=0:t/100:t
 
     h = plot3(X(index),Z(index),Y(index),'.');
-    xlabel('Y (meters)');
-    ylabel('X (meters)');
-    zlabel('Height (meters)');
+    xlabel('X (meters)');
+    ylabel('Y - Height (meters)');
+    zlabel('Z (meters)');
     title('Basket shot animation');
     set(h,'MarkerSize',10);
     set(h,'Color','g');
