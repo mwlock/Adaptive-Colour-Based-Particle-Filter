@@ -31,7 +31,7 @@ Included in this section is a list of papers we found to be interesting and of v
 | Filter Image such that only certain colours show | Matlab | [matlab](https://www.mathworks.com/matlabcentral/answers/230051-filter-image-such-that-only-certain-colours-show) |
 | Tracking basketball players with multi-camera networks | Federico Castanedo | [youtube](https://www.youtube.com/watch?v=3aRDaDVYB5Q),[github](https://github.com/fcastanedo/apidis) |
 | Tracking using Particle Filter and Backprojection | Massimiliano Patacchiola | [youtube](https://www.youtube.com/watch?v=KTxVBN5-KpE),[github](https://github.com/mpatacchiola/deepgaze) |
-| Object Tracking: Particle Filter with Ease | Massimiliano Patacchiola | [codeproject](https://www.codeproject.com/Articles/865934/Object-Tracking-Particle-Filter-with-Ease)
+| Object Tracking: Particle Filter with Ease | Darko Jurić | [codeproject](https://www.codeproject.com/Articles/865934/Object-Tracking-Particle-Filter-with-Ease)
 
 ## Datasets
 - [APIDIS basket ball dataset](https://sites.uclouvain.be/ispgroup/Softwares/APIDIS)
