@@ -36,6 +36,7 @@ subtrackted_frames = zeros([size(reference_frame) numFrames]);
 
 for i = 1:numFrames
     subtrackted_frames(:,:,:,i) = abs(im2double(frames(:,:,:,i)) - im2double(reference_frame));
+    reference_frame = frames(:,:,:,i);
 end
 
 %% Pure Background scubtraction

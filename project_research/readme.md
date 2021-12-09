@@ -27,7 +27,7 @@ Target tracking using color based particle filter                               
 | Method based on a particle filter fo r UAV trajectory prediction under uncertainties 	|         J. A. Cobano<br>Anibal Ollero        	| [researchgate](https://www.researchgate.net/publication/253966677_Method_based_on_a_particle_filter_fo_r_UAV_trajectory_prediction_under_uncertainties) 	|
 | Ocean Vessel Trajectory Estimation and Prediction Based on Extended Kalman Filter    	| Lokukaluge P. Perera<br>Carlos Guedes Soares 	| [citeseerx](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.681.8390&rep=rep1&type=pdf)                                                       	|
 | Prediction-of-Trajectory-with-kalman-filter-and-open-cv                              	| Pablo Saura                                  	| [github](https://github.com/pabsaura/Prediction-of-Trajectory-with-kalman-filter-and-open-cv)                                                         
-|
+
 
 ## Material of Interest
 
