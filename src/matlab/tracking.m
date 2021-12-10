@@ -17,7 +17,7 @@
 
 % Clean environment and load video
 close all; clc; clear;
-videos = ["shot_1.mp4"];
+videos = ["shot_1_vid_high_res.mp4"];
 video = videos(1);
 
 % Get number of frames
@@ -32,18 +32,69 @@ for i = 1:numFrames
     frames(:,:,:,i) = read(v,i);
 end
 
-% Loop through and display frames
-for i = 1:numFrames
-        imshow(frames(:,:,:,i));
-        hold on;
-        pause(1/v.FrameRate);    
-end
+% Load reference frame
+reference_frame = frames(:,:,:,55);
+figure;
+subplot(1,2,1);
+imshow(reference_frame);
+title('Reference frame');
+
+% Load binary image
+file = matfile('shot_1_vid_high_res_binary_frame_55.mat');
+binaryImage = file.binaryImage;
+subplot(1,2,2);
+imshow(binaryImage);
+title('Binary mask');
+
+% Get masked region
+reference_frame = reshape(reference_frame, [], 3);
+mask_reshaped = reshape(binaryImage, [], 1);
+masked_pixels = reference_frame(mask_reshaped,:);
+masked_pixels = reshape(masked_pixels, [], 1, 3);
+
+% convert RGB to HSV
+masked_pixels_HSV = rgb2hsv(masked_pixels);
+
+% Get Colours histogram
+figure;
+subplot(1,3,1);
+[h_counts,binLocations_h] = imhist(masked_pixels_HSV(:,:,1),8);
+title('H');
+subplot(1,3,2);
+[s_counts,binLocations_s] = imhist(masked_pixels_HSV(:,:,2),8);
+title('S');
+subplot(1,3,3);
+[v_counts,binLocations_v] = imhist(masked_pixels_HSV(:,:,3),4);
+title('V');
+
+
+
+%% Get target object
+
+% Clean environment and load video
+close all; clc; clear;
+videos = ["shot_1.mp4"];
+video = videos(1);
+
+% Load a frame
+v = VideoReader(video); 
+frame = read(v,40);
+% imshow(frame);
+
+% convert to greyscale image
+frame = rgb2gray(frame);
+
+% Adaptive thresholding
+T = adaptthresh(frame, 0.95);
+BW = imbinarize(frame,T);
+
+imshowpair(frame, BW, 'montage')
 
 %% 1. Convert frames to HSV space
 
 % Clean environment and load video
 close all; clc; clear;
-videos = ["shot_1.mp4"];
+videos = ["shot_1_vid_high_res.mp4"];
 video = videos(1);
 
 % Get number of frames

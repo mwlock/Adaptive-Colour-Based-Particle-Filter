@@ -51,11 +51,11 @@ end
 x_max = max(X)+1;
 y_max = max(Y)+1;
 
-if x_max > y_max*2
-    y_max = x_max/2;
-end
+% if x_max > y_max*2
+%     y_max = x_max/2;
+% end
 
-y_max = 2.5;
+% y_max = 2.5;
 
 for k=1:t_length
     
