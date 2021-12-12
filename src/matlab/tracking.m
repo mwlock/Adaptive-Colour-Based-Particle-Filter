@@ -202,7 +202,7 @@ weights = weights/sum(weights);
 time = toc();
 sprintf('Time taken to compute weigths %.2f',time)
 
-%% Perform all the steps
+%% Track static ball
 R = diag([10 10]);                                  % process noise 
 
 % Generate initial particles set
@@ -210,6 +210,7 @@ M = 200;                % number of particles
 S = zeros(3,M);         % set of particles  
 
 % distances and particle weights
+weights = zeros(1,M);
 distances = zeros(1,M);
 particle_weights = zeros(1,M);
 
@@ -220,7 +221,7 @@ S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 rect_width = 32;
 rect_height = 32; 
 
-for i = 1:5
+for i = 1:100
     
     hold off
     imshow(reference_frame);
@@ -241,7 +242,7 @@ for i = 1:5
     end   
 
     % Update weights
-    for m = 1:M
+    for hist_index = 1:M
         [logical_image, out_of_image] = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
         
         % Check if particle is out of image
@@ -256,11 +257,14 @@ for i = 1:5
         distance = sqrt(sum(dist_intermediate.^2));
         distances(hist_index) = distance;
     end
+    
+    % update weights
+    weights = exp(-distances.^2/(2*sigma^2))/(2*pi*sigma);
+    S(3,:) = weights/sum(weights);
 
     % Perform resampling every 5 steps
-    if mod(i-1,2) == 0
-        
-    end
+    S = pf_systematic_resample(S,M);
+
 
     pause(1/60);  
     
