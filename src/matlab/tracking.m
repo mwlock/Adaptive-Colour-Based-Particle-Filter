@@ -80,6 +80,7 @@ title('V');
 
 % Generate target histogram
 target_histogram = [h_counts;s_counts;v_counts];
+target_histogram = target_histogram / sum(target_histogram(1,:),2);
 
 % Reshape reference back to original
 reference_frame = reshape(reference_frame,image_height,image_width,3);
@@ -87,7 +88,7 @@ reference_frame = reshape(reference_frame,image_height,image_width,3);
 %% Initiate PF
 
 % Generate initial particles set
-M = 100;                % number of particles
+M = 200;                % number of particles
 S = zeros(3,M);         % set of particles   
 
 S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
@@ -96,8 +97,8 @@ S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 %% Rectangle dimensions
 
 % Size of rectangles to draw
-rect_width = 20;
-rect_height = 20; 
+rect_width = 32;
+rect_height = 32; 
 
 %% Predict (with rectangles drawn around particles)
 
@@ -105,10 +106,16 @@ rect_height = 20;
 R = diag([10 10]);                                  % process noise  
 
 % Predict 100 times (merely an example)
-imshow(reference_frame);
-for i = 1:1
-    %     S = predict_noise(S,R,M);
+
+for i = 1:100
+    
+    hold off
+    imshow(reference_frame);
     hold on;
+    
+    % Predict motion of particles
+    S = predict_noise(S,R,M);
+    
     plot(S(2,:),S(1,:),'.');
     xlim([0 image_width]);
     ylim([0 image_height]);
@@ -118,15 +125,49 @@ for i = 1:1
         xLeft = S(2,r) - rect_width/2;
         yBottom = S(1,r) - rect_height/2;
         rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','b','LineWidth',1);
-    end
+    end   
 
-    pause(1/60);    
+    pause(1/60);  
+    
 end
+
+%% Test with particle placed directly on the ball
+
+s_test = [148;706];
+
+% Shown particle on image
+subplot(1,2,1);
+imshow(reference_frame)
+hold on;
+plot(s_test(2,:),s_test(1,:),'.');
+xlim([0 image_width]);
+ylim([0 image_height]);
+
+% Draw rectable around image
+xLeft = s_test(2,:) - rect_width/2;
+yBottom =s_test(1,:) - rect_height/2;
+rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','b','LineWidth',2);
+
+logical_image=get_rectangle_mask_from_sample(s_test,image_height,image_width,rect_height,rect_width);
+maskedRgbImage = bsxfun(@times, reference_frame, cast(logical_image, 'like', reference_frame));
+
+subplot(1,2,2);
+imshow(maskedRgbImage);
+
+% Get histogram
+histogram = get_histogram(reference_frame,logical_image);
+
+% Get distance
+dist_intermediate = sum((target_histogram - histogram).^2,2);
+distance = sqrt(sum(dist_intermediate.^2));
+
+fprintf('Distance: %d\n',distance);
+
 
 %% Calculate particle weights (for single frame)
 
 % Measurement noise
-sigma = 1000;
+sigma = 0.5;
 
 % weights
 distances = zeros(1,M);
@@ -136,30 +177,8 @@ tic()
 % Loop over all histograms
 for hist_index = 1:M
     
-    % Create two logical matrices
-    logical_image_1 = false(image_height,image_width);
-    logical_image_2 = false(image_height,image_width);
-    
-    % Create regions of interest
-    region_x = round(S(2,hist_index)-rect_width/2)+(0:rect_width-1);
-    region_y = round(S(1,hist_index)-rect_height/2)+(0:rect_height-1);
-
-    % Check if regions of interest are out of bounds and correct
-    region_x = region_x ((image_width+1 > region_x) & (region_x > 0));
-    region_y = region_y ((image_height+1 > region_y) & (region_y > 0));
-
-    % Bound regions of interest
-    logical_image_1(:,region_x) = true;
-    logical_image_2(region_y,:) = true;
-    logical_image = and(logical_image_1,logical_image_2);
-
-    % Plot for interest
-    %     subplot(1,2,1);
-    %     imshow(reference_frame);
-    %     title('Reference frame');
-    %     subplot(1,2,2);
-    %     imshow(logical_image);
-    %     title('Binary mask');
+    % Get image mask
+    logical_image = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
 
     % Get distance
     histogram = get_histogram(reference_frame,logical_image);
@@ -169,9 +188,56 @@ for hist_index = 1:M
 end
 
 % Normalise distances
-distances = distances/max(distances);
+% distances = distances/max(distances);
+
 weights = exp(-distances.^2/(2*sigma^2))/(2*pi*sigma);
 weights = weights/sum(weights);
 
 time = toc();
-disp(time)
+sprintf('Time taken to compute weigths %.2f',time)
+
+%% Perform all the steps
+R = diag([10 10]);                                  % process noise 
+
+% Generate initial particles set
+M = 200;                % number of particles
+S = zeros(3,M);         % set of particles   
+
+S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
+S(2,:) = rand(1,M)*(image_width-1)+1;        % x
+
+% Size of rectangles to draw
+rect_width = 32;
+rect_height = 32; 
+
+for i = 1:100
+    
+    hold off
+    imshow(reference_frame);
+    hold on;
+    
+    % Predict motion of particles
+    S = predict_noise(S,R,M);
+    
+    plot(S(2,:),S(1,:),'.');
+    xlim([0 image_width]);
+    ylim([0 image_height]);
+
+    % Draw rectangles
+    for r =1:M
+        xLeft = S(2,r) - rect_width/2;
+        yBottom = S(1,r) - rect_height/2;
+        rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','b','LineWidth',1);
+    end   
+
+    % Update weights
+
+    for m = 1:M
+        mask = get_rectangle_mask_from_sample(s_test,image_height,image_width,rect_height,rect_width);
+
+    end
+
+    pause(1/60);  
+    
+end
+

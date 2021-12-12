@@ -39,3 +39,4 @@ function histogram = get_histogram(image, binaryImage)
     
     % Generate target histogram
     histogram = [h_counts;s_counts;v_counts];
+    histogram = histogram / sum(histogram(1,:),2);
