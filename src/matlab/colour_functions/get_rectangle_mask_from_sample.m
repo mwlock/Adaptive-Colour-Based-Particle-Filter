@@ -13,8 +13,9 @@
 function [mask,out_of_image] = get_rectangle_mask_from_sample(sample,image_height,image_width,rect_height,rect_width)
     
     mask = false(image_height,image_width);
-    out_of_image = false;
-    logical_image_1 = false(image_height,image_width);
+
+    out_of_image = false;   % Boolean that keeps track if particle is inside image
+    logical_image_1 = false(image_height,image_width);  
     logical_image_2 = false(image_height,image_width);
     
     % Create regions of interest
@@ -31,7 +32,7 @@ function [mask,out_of_image] = get_rectangle_mask_from_sample(sample,image_heigh
         return;
     end
     
-    % Bound regions of interest
+    % Create Mask using logical values of region_x & region_y
     logical_image_1(:,region_x) = true;
     logical_image_2(region_y,:) = true;
     mask = and(logical_image_1,logical_image_2);
