@@ -16,11 +16,8 @@
 %           S_bar(t)            3XM
 % Outputs: 
 %           S_bar(t)            4XM
-function S_bar = pf_weights(S_bar, outlier)
-
+function S_bar = pf_weights(S_bar, outlier)   
     
-    
-
     % Psi => for each observation, this is the most likely set of particles
     Psi= Psi(1,find(~outlier),:);
     

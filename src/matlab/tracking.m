@@ -81,27 +81,34 @@ title('V');
 % Generate target histogram
 target_histogram = [h_counts;s_counts;v_counts];
 
+% Reshape reference back to original
+reference_frame = reshape(reference_frame,image_height,image_width,3);
+
 %% Initiate PF
 
 % Generate initial particles set
-M = 200;                % number of particles
+M = 100;                % number of particles
 S = zeros(3,M);         % set of particles   
 
 S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
 S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 
+%% Rectangle dimensions
+
+% Size of rectangles to draw
+rect_width = 20;
+rect_height = 20; 
+
 %% Predict (with rectangles drawn around particles)
 
 % Look at how particles move over time
-R = diag([10 10]);                                  % process noise 
-
-% Size of rectangles to draw
-rect_width = 30;
-rect_height = 30; 
+R = diag([10 10]);                                  % process noise  
 
 % Predict 100 times (merely an example)
-for i = 1:100
-    S = predict_noise(S,R,M);
+imshow(reference_frame);
+for i = 1:1
+    %     S = predict_noise(S,R,M);
+    hold on;
     plot(S(2,:),S(1,:),'.');
     xlim([0 image_width]);
     ylim([0 image_height]);
@@ -118,6 +125,14 @@ end
 
 %% Calculate particle weights (for single frame)
 
+% Measurement noise
+sigma = 1000;
+
+% weights
+distances = zeros(1,M);
+particle_weights = zeros(1,M);
+
+tic()
 % Loop over all histograms
 for hist_index = 1:M
     
@@ -133,10 +148,30 @@ for hist_index = 1:M
     region_x = region_x ((image_width+1 > region_x) & (region_x > 0));
     region_y = region_y ((image_height+1 > region_y) & (region_y > 0));
 
-
     % Bound regions of interest
     logical_image_1(:,region_x) = true;
     logical_image_2(region_y,:) = true;
     logical_image = and(logical_image_1,logical_image_2);
 
+    % Plot for interest
+    %     subplot(1,2,1);
+    %     imshow(reference_frame);
+    %     title('Reference frame');
+    %     subplot(1,2,2);
+    %     imshow(logical_image);
+    %     title('Binary mask');
+
+    % Get distance
+    histogram = get_histogram(reference_frame,logical_image);
+    dist_intermediate = sum((target_histogram - histogram).^2,2);
+    distance = sqrt(sum(dist_intermediate.^2));
+    distances(hist_index) = distance;
 end
+
+% Normalise distances
+distances = distances/max(distances);
+weights = exp(-distances.^2/(2*sigma^2))/(2*pi*sigma);
+weights = weights/sum(weights);
+
+time = toc();
+disp(time)
