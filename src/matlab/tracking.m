@@ -120,11 +120,21 @@ end
 
 % Loop over all histograms
 for hist_index = 1:M
-
+    
+    % Create two logical matrices
     logical_image_1 = false(image_height,image_width);
     logical_image_2 = false(image_height,image_width);
-    region_x = round(S(2,hist_index))+(0:rect_width-1);
-    region_y = round(S(1,hist_index))+(0:rect_height-1);
+    
+    % Create regions of interest
+    region_x = round(S(2,hist_index)-rect_width/2)+(0:rect_width-1);
+    region_y = round(S(1,hist_index)-rect_height/2)+(0:rect_height-1);
+
+    % Check if regions of interest are out of bounds and correct
+    region_x = region_x ((image_width+1 > region_x) & (region_x > 0));
+    region_y = region_y ((image_height+1 > region_y) & (region_y > 0));
+
+
+    % Bound regions of interest
     logical_image_1(:,region_x) = true;
     logical_image_2(region_y,:) = true;
     logical_image = and(logical_image_1,logical_image_2);
