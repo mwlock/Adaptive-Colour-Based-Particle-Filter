@@ -169,7 +169,7 @@ fprintf('Distance: %d\n',distance);
 % Measurement noise
 sigma = 0.5;
 
-% weights
+% distances and particle weights
 distances = zeros(1,M);
 particle_weights = zeros(1,M);
 
@@ -178,7 +178,13 @@ tic()
 for hist_index = 1:M
     
     % Get image mask
-    logical_image = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
+    [logical_image, out_of_image] = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
+    
+    % Check if particle is out of image
+    if out_of_image
+        distances(hist_index) = distances(hist_index);
+        continue;
+    end
 
     % Get distance
     histogram = get_histogram(reference_frame,logical_image);
@@ -201,7 +207,11 @@ R = diag([10 10]);                                  % process noise
 
 % Generate initial particles set
 M = 200;                % number of particles
-S = zeros(3,M);         % set of particles   
+S = zeros(3,M);         % set of particles  
+
+% distances and particle weights
+distances = zeros(1,M);
+particle_weights = zeros(1,M);
 
 S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
 S(2,:) = rand(1,M)*(image_width-1)+1;        % x
@@ -210,7 +220,7 @@ S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 rect_width = 32;
 rect_height = 32; 
 
-for i = 1:100
+for i = 1:5
     
     hold off
     imshow(reference_frame);
@@ -231,10 +241,25 @@ for i = 1:100
     end   
 
     % Update weights
-
     for m = 1:M
-        mask = get_rectangle_mask_from_sample(s_test,image_height,image_width,rect_height,rect_width);
+        [logical_image, out_of_image] = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
+        
+        % Check if particle is out of image
+        if out_of_image
+            distances(hist_index) = distances(hist_index);
+            continue;
+        end
+    
+        % Get distance
+        histogram = get_histogram(reference_frame,logical_image);
+        dist_intermediate = sum((target_histogram - histogram).^2,2);
+        distance = sqrt(sum(dist_intermediate.^2));
+        distances(hist_index) = distance;
+    end
 
+    % Perform resampling every 5 steps
+    if mod(i-1,2) == 0
+        
     end
 
     pause(1/60);  

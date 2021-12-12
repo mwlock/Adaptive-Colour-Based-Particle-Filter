@@ -10,8 +10,10 @@
 % Matthew William Lock (mwlock@kth.se)
 % Miguel Garcia Naude (magn2@kth.se)
 
-function mask = get_rectangle_mask_from_sample(sample,image_height,image_width,rect_height,rect_width)
-
+function [mask,out_of_image] = get_rectangle_mask_from_sample(sample,image_height,image_width,rect_height,rect_width)
+    
+    mask = false(image_height,image_width);
+    out_of_image = false;
     logical_image_1 = false(image_height,image_width);
     logical_image_2 = false(image_height,image_width);
     
@@ -22,6 +24,12 @@ function mask = get_rectangle_mask_from_sample(sample,image_height,image_width,r
     % Check if regions of interest are out of bounds and correct
     region_x = region_x ((image_width+1 > region_x) & (region_x > 0));
     region_y = region_y ((image_height+1 > region_y) & (region_y > 0));
+
+    % Check if sample is outside of image
+    if isempty(region_x) || isempty(region_y)
+        out_of_image = true;
+        return;
+    end
     
     % Bound regions of interest
     logical_image_1(:,region_x) = true;
