@@ -9,11 +9,11 @@
 % Matthew William Lock (mwlock@kth.se)
 % Miguel Garcia Naude (magn2@kth.se)
 
-% The code in this file is done in sections with each section being
-% indepenent of each other. The idea of tracking an object in a video
+% The code in this file is done in sections with each section meant 
+% to run one after the next. The idea of tracking an object in a video
 % stream is incrementely built in each section in a "chronological" order.
 
-%% Loading a playing a video stream
+%% Get colour distriubtion of the target
 
 % Clean environment and load video
 close all; clc; clear;
@@ -39,6 +39,10 @@ subplot(1,2,1);
 imshow(reference_frame);
 title('Reference frame');
 
+% Get image parameters
+image_height = size(reference_frame,1);
+image_width = size(reference_frame,2);
+
 % Load binary image
 file = matfile('shot_1_vid_high_res_binary_frame_55.mat');
 binaryImage = file.binaryImage;
@@ -59,54 +63,70 @@ masked_pixels_HSV = rgb2hsv(masked_pixels);
 figure;
 subplot(1,3,1);
 [h_counts,binLocations_h] = imhist(masked_pixels_HSV(:,:,1),8);
+h_counts = h_counts';
+imhist(masked_pixels_HSV(:,:,1),8);
 title('H');
 subplot(1,3,2);
 [s_counts,binLocations_s] = imhist(masked_pixels_HSV(:,:,2),8);
+s_counts = s_counts';
+imhist(masked_pixels_HSV(:,:,2),8);
 title('S');
 subplot(1,3,3);
 [v_counts,binLocations_v] = imhist(masked_pixels_HSV(:,:,3),4);
+v_counts = v_counts';
+v_counts(8)=0;
+imhist(masked_pixels_HSV(:,:,3),4);
 title('V');
 
+% Generate target histogram
+target_histogram = [h_counts;s_counts;v_counts];
 
+%% Initiate PF
 
-%% Get target object
+% Generate initial particles set
+M = 200;                % number of particles
+S = zeros(3,M);         % set of particles   
 
-% Clean environment and load video
-close all; clc; clear;
-videos = ["shot_1.mp4"];
-video = videos(1);
+S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
+S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 
-% Load a frame
-v = VideoReader(video); 
-frame = read(v,40);
-% imshow(frame);
+%% Predict (with rectangles drawn around particles)
 
-% convert to greyscale image
-frame = rgb2gray(frame);
+% Look at how particles move over time
+R = diag([10 10]);                                  % process noise 
 
-% Adaptive thresholding
-T = adaptthresh(frame, 0.95);
-BW = imbinarize(frame,T);
+% Size of rectangles to draw
+rect_width = 30;
+rect_height = 30; 
 
-imshowpair(frame, BW, 'montage')
+% Predict 100 times (merely an example)
+for i = 1:100
+    S = predict_noise(S,R,M);
+    plot(S(2,:),S(1,:),'.');
+    xlim([0 image_width]);
+    ylim([0 image_height]);
 
-%% 1. Convert frames to HSV space
+    % Draw rectangles
+    for r =1:M
+        xLeft = S(2,r) - rect_width/2;
+        yBottom = S(1,r) - rect_height/2;
+        rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','b','LineWidth',1);
+    end
 
-% Clean environment and load video
-close all; clc; clear;
-videos = ["shot_1_vid_high_res.mp4"];
-video = videos(1);
-
-% Get number of frames
-v = VideoReader(video); numFrames = 0;
-while hasFrame(v)
-    readFrame(v);
-    numFrames = numFrames + 1;
+    pause(1/60);    
 end
 
-% Load frames
-for i = 1:numFrames
-    frame = read(v,i);
-    frames(:,:,:,i) = frame;
-    frames_hsv(:,:,:,i) = rgb2hsv(frame);
+%% Calculate particle weights (for single frame)
+
+% Loop over all histograms
+for hist_index = 1:M
+
+    logical_image_1 = false(image_height,image_width);
+    logical_image_2 = false(image_height,image_width);
+    region_x = round(S(2,hist_index))+(0:rect_width-1);
+    region_y = round(S(1,hist_index))+(0:rect_height-1);
+    logical_image_1(:,region_x) = true;
+    logical_image_2(region_y,:) = true;
+    logical_image = and(logical_image_1,logical_image_2);
+
 end
