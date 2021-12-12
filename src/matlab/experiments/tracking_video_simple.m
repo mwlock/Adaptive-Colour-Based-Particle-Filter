@@ -5,18 +5,8 @@ clc; clear;
 videos = ["shot_1_vid_high_res.mp4"];
 video = videos(1);
 
-% Get number of frames
+% Get static image
 v = VideoReader(video); numFrames = 0;
-while hasFrame(v)
-    readFrame(v);
-    numFrames = numFrames + 1;
-end
-
-% Load frames
-for i = 1:numFrames
-    frames(:,:,:,i) = read(v,i);
-end
-
 reference_frame = read(v,55);
 
 % Get image parameters
@@ -54,10 +44,10 @@ target_histogram = target_histogram / sum(target_histogram(1,:),2);
 % Reshape reference back to original
 reference_frame = reshape(reference_frame,image_height,image_width,3);
 
-R = diag([100 100]);                                  % process noise 
+R = diag([10 10]);                                  % process noise 
 
 % Generate initial particles set
-M = 100;                % number of particles
+M = 200;                % number of particles
 S = zeros(3,M);         % set of particles  
 
 % distances and particle weights
@@ -73,14 +63,12 @@ rect_width = 32;
 rect_height = 32; 
 
 % Measurement noise
-sigma = 1;
+sigma = 0.2;
 
-for i = 1:numFrames
-
-    image = frames(:,:,:,i);
+for i = 1:100
     
     hold off
-    imshow(image);
+    imshow(reference_frame);
     hold on;
     
     % Predict motion of particles
@@ -108,7 +96,7 @@ for i = 1:numFrames
         end
     
         % Get distance
-        histogram = get_histogram(image,logical_image);
+        histogram = get_histogram(reference_frame,logical_image);
         dist_intermediate = sum((target_histogram - histogram).^2,2);
         distance = sqrt(sum(dist_intermediate.^2));
         distances(hist_index) = distance;
@@ -119,9 +107,9 @@ for i = 1:numFrames
     S(3,:) = weights/sum(weights);
 
     % Perform resampling every 5 steps
-%     if mod(i,5)==0
-    S = pf_systematic_resample(S,M);
-%     end
+    if mod(i,5)==0
+        S = pf_systematic_resample(S,M);
+    end
 
     pause(1/60);  
     
