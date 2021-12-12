@@ -13,7 +13,7 @@
 % to run one after the next. The idea of tracking an object in a video
 % stream is incrementely built in each section in a "chronological" order.
 
-%% Get colour distriubtion of the target
+%% Get colour distribution of the target
 
 % Clean environment and load video
 close all; clc; clear;
@@ -66,11 +66,13 @@ subplot(1,3,1);
 h_counts = h_counts';
 imhist(masked_pixels_HSV(:,:,1),8);
 title('H');
+
 subplot(1,3,2);
 [s_counts,binLocations_s] = imhist(masked_pixels_HSV(:,:,2),8);
 s_counts = s_counts';
 imhist(masked_pixels_HSV(:,:,2),8);
 title('S');
+
 subplot(1,3,3);
 [v_counts,binLocations_v] = imhist(masked_pixels_HSV(:,:,3),4);
 v_counts = v_counts';
@@ -105,7 +107,7 @@ rect_height = 32;
 % Look at how particles move over time
 R = diag([10 10]);                                  % process noise  
 
-% Predict 100 times (merely an example)
+% Predict 100 times (merely an example - shows moving particles)
 
 for i = 1:100
     
@@ -170,7 +172,7 @@ fprintf('Distance: %d\n',distance);
 sigma = 0.5;
 
 % distances and particle weights
-distances = zeros(1,M);
+distances = Inf(1,M);
 particle_weights = zeros(1,M);
 
 tic()
