@@ -18,40 +18,13 @@ imtool close all;	% Close all figure windows created by imtool.
 workspace;	% Make sure the workspace panel is showing.
 fontSize = 16;
 
-% See if the user wants to mask a gray scale image or a color RGB image.
-promptMessage = sprintf('Do you want to mask a gray scale or color image?');
-titleBarCaption = 'Continue?';
-buttonText = questdlg(promptMessage, titleBarCaption, 'Gray Scale', 'Color', 'Cancel', 'Gray Scale');
-if strcmpi(buttonText, 'Cancel')
-	return;
-elseif strcmpi(buttonText, 'Color')
-	colorImage = true;
-	baseFileName = 'peppers.png';
-else
-	colorImage = false;
-	baseFileName = 'cameraman.tif';
-end
+fullFileName = 'shot_1_vid_low_res.mp4';
+v = VideoReader(fullFileName);
 
-% Read in a standard MATLAB gray scale demo image.
-folder = fileparts(which('peppers.png')); % Determine where demo images folder is (works with all versions).
-% Get the full filename, with path prepended.
-fullFileName = fullfile(folder, baseFileName);
-% Check if file exists.
-if ~exist(fullFileName, 'file')
-	% File doesn't exist -- didn't find it there.  Check the search path for it.
-	fullFileName = baseFileName; % No path this time.
-	if ~exist(fullFileName, 'file')
-		% Still didn't find it.  Alert user.
-		errorMessage = sprintf('Error: %s does not exist in the search path folders.', fullFileName);
-		uiwait(warndlg(errorMessage));
-		return;
-	end
-end
-grayImage = imread(fullFileName);
+grayImage = read(v,55);
 imshow(grayImage, []);
 axis on;
 title('Original Grayscale Image', 'FontSize', fontSize);
-set(gcf, 'Position', get(0,'Screensize')); % Maximize figure.
 
 % Ask user to draw freehand mask.
 message = sprintf('Left click and hold to begin drawing.\nSimply lift the mouse button to finish');
@@ -73,6 +46,7 @@ subplot(2, 4, 2);
 imshow(binaryImage);
 axis on;
 title('Binary mask of the region', 'FontSize', fontSize);
+save('binaryImage.mat','binaryImage');
 
 % Get the dimensions of the image.  
 % numberOfColorBands should be = 1.

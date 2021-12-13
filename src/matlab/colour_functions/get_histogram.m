@@ -36,6 +36,7 @@ function histogram = get_histogram(image, binaryImage)
     [v_counts,~] = imhist(masked_pixels_HSV(:,:,3),4);
     v_counts = v_counts';
     v_counts(8)=0;
+    v_counts = zeros(1,8);
     
     % Generate target histogram
     histogram = [h_counts;s_counts;v_counts];

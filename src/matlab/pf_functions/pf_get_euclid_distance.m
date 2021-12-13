@@ -8,6 +8,9 @@
 % Authors : 
 % Matthew William Lock (mwlock@kth.se)
 
-function [distance] = pf_get_euclid_distance()
+function distance = pf_get_euclid_distance(target,sample)
+
+        dist_intermediate = sum((target - sample).^2,2);
+        distance = sqrt(sum(dist_intermediate.^2));
 
 end
