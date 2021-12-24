@@ -18,7 +18,7 @@ Target tracking using color based particle filter                               
 |:------------------------------------------------------------------------------------:	|:--------------------------------------------:	|:-------------------------------------------------------------------------------------------------------------------------------------------------------:	
 | Robust online appearance models for visual tracking      	| A.D. Jepson et al             	| [ieeexplore](https://ieeexplore.ieee.org/document/1233903)      	|
 | Tracking and segmenting people in varying lighting conditions using colour                                              	| Y. Raja et al                	| [ieeexplore](https://ieeexplore.ieee.org/document/670953)                                               	|                                      	|
-|
+
 
 ## Papers/Material of Interest
 
