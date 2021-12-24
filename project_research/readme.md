@@ -19,6 +19,11 @@ Target tracking using color based particle filter                               
 | Robust online appearance models for visual tracking      	| A.D. Jepson et al             	| [ieeexplore](https://ieeexplore.ieee.org/document/1233903)      	|
 | Tracking and segmenting people in varying lighting conditions using colour                                              	| Y. Raja et al                	| [ieeexplore](https://ieeexplore.ieee.org/document/670953)                                               	|                                      	|
 
+## Colour Distriubution Comparison Methods
+|                                         Paper                                        	|                    Author                    	|                                                                           Link                                                                          	|
+|:------------------------------------------------------------------------------------:	|:--------------------------------------------:	|:-------------------------------------------------------------------------------------------------------------------------------------------------------:	
+| The Simplest Classifier: Histogram Comparison      	| Massimiliano Patacchiola | [github](https://mpatacchiola.github.io/blog/2016/11/12/the-simplest-classifier-histogram-intersection.html)      	|
+|                                            	  
 
 ## Papers/Material of Interest
 
