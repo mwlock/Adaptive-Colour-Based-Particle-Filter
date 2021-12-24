@@ -2,12 +2,6 @@
 
 Included in this section is a list of papers we found to be interesting and of value. The papers are (mostly) grouped according to their region of interest.
 
-## Papers Cited
-
-| Paper 	|   Author   	|       Link       	|
-|:-----:	|:----------:	|:----------------:	|
-| Fixed 	| [100, 100] 	| https://test.com 	|
-
 
 ## Particle Filter Based Object Tracking
 
@@ -19,6 +13,12 @@ Included in this section is a list of papers we found to be interesting and of v
 | A Color-based Particle Filter                                               	| Esther Koller-Meier et al                	| [researchgate](https://www.researchgate.net/publication/2863597_A_Color-based_Particle_Filter)                                               	|     
 Target tracking using color based particle filter                                              	| Esther Amir Mukhtar et al                	| [ieeexplore](https://ieeexplore.ieee.org/document/6869447)                                               	|     
 
+## Adaptive Colour Distribution 
+|                                         Paper                                        	|                    Author                    	|                                                                           Link                                                                          	|
+|:------------------------------------------------------------------------------------:	|:--------------------------------------------:	|:-------------------------------------------------------------------------------------------------------------------------------------------------------:	
+| Robust online appearance models for visual tracking      	| A.D. Jepson et al             	| [ieeexplore](https://ieeexplore.ieee.org/document/1233903)      	|
+| Tracking and segmenting people in varying lighting conditions using colour                                              	| Y. Raja et al                	| [ieeexplore](https://ieeexplore.ieee.org/document/670953)                                               	|                                      	|
+|
 
 ## Papers/Material of Interest
 

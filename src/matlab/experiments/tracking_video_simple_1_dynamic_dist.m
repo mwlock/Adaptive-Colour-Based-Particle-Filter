@@ -1,8 +1,8 @@
-%% Track static ball
+%% Track static ball  - with dynamic colour distribution using euclidean distance
 
 % Clean environment and load video
 clc; clear;
-videos = ["shot_1_vid_low_res.mp4"];
+videos = ["shot_1_vid_high_res.mp4"];
 video = videos(1);
 
 % Get number of frames
@@ -27,11 +27,8 @@ image_width = size(reference_frame,2);
 % Get Colours histogram
 
 % Load binary image
-file = matfile('shot_1_vid_low_res_binary_frame_55.mat');
+file = matfile('shot_1_vid_high_res_binary_frame_55.mat');
 binaryImage = file.binaryImage;
-
-% Show masked region
-maskedRgbImage = bsxfun(@times, reference_frame, cast(binaryImage, 'like', reference_frame));
 
 % Get masked region
 reference_frame = reshape(reference_frame, [], 3);
@@ -58,10 +55,10 @@ target_histogram = target_histogram / sum(target_histogram(1,:),2);
 % Reshape reference back to original
 reference_frame = reshape(reference_frame,image_height,image_width,3);
 
-R = diag([10 10]);                                  % process noise 
+R = diag([100 100]);                                  % process noise 
 
 % Generate initial particles set
-M = 150;                % number of particles
+M = 200;                % number of particles
 S = zeros(3,M);         % set of particles  
 
 % distances and particle weights
@@ -73,11 +70,11 @@ S(1,:) = rand(1,M)*(image_height-1)+1;       % y
 S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 
 % Size of rectangles to draw
-rect_width = 10;
-rect_height = 10; 
+rect_width = 30;
+rect_height = 30; 
 
 % Measurement noise
-sigma = 0.08;
+sigma = 0.05;
 
 % Keep track of whether the target has converged
 tracking = false;
@@ -100,6 +97,9 @@ for i = 1:numFrames
     xlim([0 image_width]);
     ylim([0 image_height]);
 
+    % Store histograms
+    histogram_sum = zeros(3,8);
+
     % Update weights
     for hist_index = 1:M
         [logical_image, out_of_image] = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
@@ -112,17 +112,20 @@ for i = 1:numFrames
     
         % Get distance
         histogram = get_histogram(image,logical_image);
-        dist_intermediate = sum((target_histogram - histogram).^2,2);
-        distance = sqrt(sum(dist_intermediate.^2));
+        histogram_sum = histogram_sum + histogram;
+        distance = pf_get_euclid_distance(target_histogram,histogram);
         distances(hist_index) = distance;
     end
+
+    % Average hist
+    avg_hist = histogram_sum/M;
     
     % update weights
     weights = exp(-distances.^2/(2*sigma^2))/(2*pi*sigma);
     S(3,:) = weights/sum(weights);
 
-    % Perform resampling 
-    if min(distances)<0.18
+    % Perform resampling every 5 steps
+    if min(distances)<0.15
         S = pf_systematic_resample(S,M);
     end
 
@@ -140,8 +143,16 @@ for i = 1:numFrames
     % Check if tracking
     if std_x < 10 &&  std_y < 10 && ~tracking
         tracking = true;
-    else
+    end 
+    if std_x >= 10 &&  std_y >= 10 && tracking
         tracking = false;
+    end
+    fprintf('Tracking %d\nstd x : %0.3f\nstd y: %0.3f\n',tracking,std_x,std_y);
+
+    % Dynamic colour dist
+    if tracking && pf_get_euclid_distance(target_histogram,avg_hist) < 0.2
+        target_histogram = avg_hist;
+        disp('Target hist updated')
     end
 
     % Check for standard variation of particles
@@ -152,7 +163,7 @@ for i = 1:numFrames
         tracking = false;
     end
 
-    fprintf('Tracking %d\nstd x : %0.3f\nstd y: %0.3f\n',tracking,std_x,std_y);
+    
 
     pause(1/60);  
     

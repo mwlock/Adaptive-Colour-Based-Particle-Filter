@@ -8,9 +8,6 @@
 % (6) crops the drawn region to a new, smaller separate image.
 
 % Change the current folder to the folder of this m-file.
-if(~isdeployed)
-	cd(fileparts(which(mfilename)));
-end
 clc;	% Clear command window.
 clear;	% Delete all variables.
 close all;	% Close all figure windows except those created by imtool.

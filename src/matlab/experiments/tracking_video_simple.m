@@ -93,7 +93,7 @@ for i = 1:100
         if out_of_image
             distances(hist_index) = distances(hist_index);
             continue;
-        end
+        end`
     
         % Get distance
         histogram = get_histogram(reference_frame,logical_image);

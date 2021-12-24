@@ -1,8 +1,9 @@
-%% Track static ball
+%% Track ball in video
+% DO NOT CHANGE PARAMTERS
 
 % Clean environment and load video
 clc; clear;
-videos = ["shot_1_vid_low_res.mp4"];
+videos = ["shot_1_vid_high_res.mp4"];
 video = videos(1);
 
 % Get number of frames
@@ -137,7 +138,9 @@ for i = 1:numFrames
     % Check if tracking
     if std_x < 10 &&  std_y < 10 && ~tracking
         tracking = true;
-    else
+    end 
+
+    if std_x >= 10 &&  std_y >= 10 && tracking
         tracking = false;
     end
 
