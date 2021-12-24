@@ -23,7 +23,7 @@ Target tracking using color based particle filter                               
 |                                         Paper                                        	|                    Author                    	|                                                                           Link                                                                          	|
 |:------------------------------------------------------------------------------------:	|:--------------------------------------------:	|:-------------------------------------------------------------------------------------------------------------------------------------------------------:	
 | The Simplest Classifier: Histogram Comparison      	| Massimiliano Patacchiola | [github](https://mpatacchiola.github.io/blog/2016/11/12/the-simplest-classifier-histogram-intersection.html)      	|
-|                                            	  
+| How-To: 3 Ways to Compare Histograms using OpenCV and Python	|  Adrian Rosebrock	| [pyimagesearch](https://www.pyimagesearch.com/2014/07/14/3-ways-compare-histograms-using-opencv-python/)                                               	|  
 
 ## Papers/Material of Interest
 
