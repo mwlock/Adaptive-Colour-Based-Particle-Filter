@@ -19,6 +19,7 @@ Target tracking using color based particle filter                               
 | Robust online appearance models for visual tracking      	| A.D. Jepson et al             	| [ieeexplore](https://ieeexplore.ieee.org/document/1233903)      	|
 | Tracking and segmenting people in varying lighting conditions using colour                                              	| Y. Raja et al                	| [ieeexplore](https://ieeexplore.ieee.org/document/670953)                                               	|                                      	|
 | Adaptive target color model updating for visual tracking using particle filter                                              	| Xi Lu et al                	| [researchgate](https://www.researchgate.net/publication/4126951_Adaptive_target_color_model_updating_for_visual_tracking_using_particle_filter)                                               	|  
+| Particle Filter-Based Object Tracking Using Adaptive Histogram | M. Fotouhi, et al| [ieeexplore](https://ieeexplore.ieee.org/document/6121612)                                               	|  
 | Comparative study of histogram distance measures for re-identification | Pedro A. Marín-Reyes, et al| [deepai](https://deepai.org/publication/comparative-study-of-histogram-distance-measures-for-re-identification)                                               	|  
 
 ## Colour Distriubution Comparison Methods
