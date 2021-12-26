@@ -55,12 +55,13 @@ h_counts = h_counts';
 imhist(masked_pixels_HSV(:,:,1),8);
 [s_counts,binLocations_s] = imhist(masked_pixels_HSV(:,:,2),8);
 s_counts = s_counts';
-[v_counts,binLocations_v] = imhist(masked_pixels_HSV(:,:,3),4);
+[v_counts,binLocations_v] = imhist(masked_pixels_HSV(:,:,3),2);
 v_counts = v_counts';
 v_counts(8)=0;
-v_counts=zeros(1,8);
+
 target_histogram = [h_counts;s_counts;v_counts];
 target_histogram = target_histogram / sum(target_histogram(1,:),2);
+target_histogram = reshape(target_histogram',1,[]);
 
 % Reshape reference back to original
 reference_frame = reshape(reference_frame,image_height,image_width,3);
@@ -73,7 +74,7 @@ S = zeros(3,M);         % set of particles
 
 % distances and particle weights
 weights = zeros(1,M);
-distances = zeros(1,M);
+distances = ones(1,M);
 particle_weights = zeros(1,M);
  
 S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
@@ -84,7 +85,10 @@ rect_width = 30;
 rect_height = 30; 
 
 % Measurement noise
-sigma = 0.05;
+sigma = 0.2;
+
+% Resampling threshold
+resampling_thresh = 0.2;
 
 % Keep track of whether the target has converged
 tracking = false;
@@ -119,23 +123,23 @@ for i = 1:numFrames
             continue;
         end
     
-        % Get distance
+        % Get histogram
         histogram = get_histogram(hsv_image,logical_image,false);
+        histogram = reshape(histogram',1,[]);
 
-        % histogram = reshape(histogram,1,[]);
-        % target_histogram = reshape(target_histogram,1,[]);% 
-        % distance = pdist2(histogram,target_histogram);
-    
-        distance = pf_get_euclid_distance(target_histogram,histogram);
+        % Get distance   
+        distance = bhattacharyya_distance(target_histogram,histogram);
         distances(hist_index) = distance;
     end
+
+    fprintf('Min distance %.2f \n\n', min(distances));
     
     % update weights
-    weights = exp(-distances.^2/(2*sigma^2))/(2*pi*sigma);
+    weights = 1/(sqrt(2*pi)*sigma)*exp(-distances.^2/(2*sigma^2));
     S(3,:) = weights/sum(weights);
 
     % Perform resampling every 5 steps
-    if min(distances)<0.15
+    if min(distances)< resampling_thresh
         S = pf_systematic_resample(S,M);
     end
 

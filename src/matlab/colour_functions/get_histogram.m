@@ -14,7 +14,12 @@
 % Outputs: 
 %           histogram            3X8    
 
-function histogram = get_histogram(image, binaryImage) 
+function histogram = get_histogram(image, binaryImage,convert_to_hsv)
+
+    % Check i fconversion to HSV is needed
+    if nargin == 2
+        convert_to_hsv = true;
+    end
     
     % Get masked region
     reference_frame = reshape(image, [], 3);
@@ -23,20 +28,22 @@ function histogram = get_histogram(image, binaryImage)
     masked_pixels = reshape(masked_pixels, [], 1, 3);
     
     % convert RGB to HSV
-    masked_pixels_HSV = rgb2hsv(masked_pixels);
+    if convert_to_hsv
+        masked_pixels = rgb2hsv(masked_pixels);
+    end
     
     % Get Colours histogram
 
-    [h_counts,~] = imhist(masked_pixels_HSV(:,:,1),8);
+    [h_counts,~] = imhist(masked_pixels(:,:,1),8);
     h_counts = h_counts';
 
-    [s_counts,~] = imhist(masked_pixels_HSV(:,:,2),8);
+    [s_counts,~] = imhist(masked_pixels(:,:,2),8);
     s_counts = s_counts';
 
-    [v_counts,~] = imhist(masked_pixels_HSV(:,:,3),4);
+    [v_counts,~] = imhist(masked_pixels(:,:,3),2);
     v_counts = v_counts';
     v_counts(8)=0;
-    v_counts = zeros(1,8);
+    % v_counts = zeros(1,8);
     
     % Generate target histogram
     histogram = [h_counts;s_counts;v_counts];

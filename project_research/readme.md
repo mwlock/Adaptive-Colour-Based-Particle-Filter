@@ -16,6 +16,7 @@ Target tracking using color based particle filter                               
 ## Adaptive Colour Distribution 
 |                                         Paper                                        	|                    Author                    	|                                                                           Link                                                                          	|
 |:------------------------------------------------------------------------------------:	|:--------------------------------------------:	|:-------------------------------------------------------------------------------------------------------------------------------------------------------:	
+| Object Tracking with an Adaptive Color-Based Particle Filter      	| Katja Nummiaro, et al             	| [springer](https://link.springer.com/chapter/10.1007/3-540-45783-6_43)      	
 | Robust online appearance models for visual tracking      	| A.D. Jepson et al             	| [ieeexplore](https://ieeexplore.ieee.org/document/1233903)      	|
 | Tracking and segmenting people in varying lighting conditions using colour                                              	| Y. Raja et al                	| [ieeexplore](https://ieeexplore.ieee.org/document/670953)                                               	|                                      	|
 | Adaptive target color model updating for visual tracking using particle filter                                              	| Xi Lu et al                	| [researchgate](https://www.researchgate.net/publication/4126951_Adaptive_target_color_model_updating_for_visual_tracking_using_particle_filter)                                               	|  
@@ -46,6 +47,7 @@ Target tracking using color based particle filter                               
 | Tracking basketball players with multi-camera networks | Federico Castanedo | [youtube](https://www.youtube.com/watch?v=3aRDaDVYB5Q),[github](https://github.com/fcastanedo/apidis) |
 | Tracking using Particle Filter and Backprojection | Massimiliano Patacchiola | [youtube](https://www.youtube.com/watch?v=KTxVBN5-KpE),[github](https://github.com/mpatacchiola/deepgaze) |
 | Object Tracking: Particle Filter with Ease | Darko Jurić | [codeproject](https://www.codeproject.com/Articles/865934/Object-Tracking-Particle-Filter-with-Ease)
+| Matlab implementation of bhattacharyya distance | ChrisYang| [github](https://github.com/ChrisYang/uhiris/blob/master/matlab/bhattacharyya.m)
 
 ## Datasets
 - [APIDIS basket ball dataset](https://sites.uclouvain.be/ispgroup/Softwares/APIDIS)
