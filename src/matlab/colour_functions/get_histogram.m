@@ -40,7 +40,7 @@ function histogram = get_histogram(image, binaryImage,convert_to_hsv)
     [s_counts,~] = imhist(masked_pixels(:,:,2),8);
     s_counts = s_counts';
 
-    [v_counts,~] = imhist(masked_pixels(:,:,3),2);
+    [v_counts,~] = imhist(masked_pixels(:,:,3),1);
     v_counts = v_counts';
     v_counts(8)=0;
     % v_counts = zeros(1,8);
