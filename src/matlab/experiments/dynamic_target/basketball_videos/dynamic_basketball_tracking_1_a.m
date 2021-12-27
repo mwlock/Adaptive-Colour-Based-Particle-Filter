@@ -1,34 +1,39 @@
 %% Track ball in video
-% DO NOT CHANGE PARAMTERS
+% Interesting findings - higher resolution yields worse results
+
 
 % Clean environment and load video
 clc; clear;
-videos = ["shot_1_vid_high_res.mp4"];
-video = videos(1);
+video = "shot_1_vid_high_res.mp4";
 
 % Get number of frames
 v = VideoReader(video); numFrames = 0;
 while hasFrame(v)
     readFrame(v);
     numFrames = numFrames + 1;
+    fprintf('Number of frames : %d \n',numFrames);
 end
+
+% Set downsampling size
+scale = 0.3;
 
 % Get deminsions of frame
 ref_frame = read(v,1);
+ref_frame = imresize(ref_frame,scale);
 dimensions = size(ref_frame);
 
-% frames = zeros([dimensions numFrames]);
-% hsv_frames = zeros([dimensions numFrames]);
+frames = uint8(zeros([dimensions numFrames]));
+hsv_frames = zeros([dimensions numFrames]);
 
 % Load frames
 for i = 1:numFrames
-    frames(:,:,:,i) = read(v,i);
+    frames(:,:,:,i) = uint8(imresize(read(v,i),scale));
     hsv_frames(:,:,:,i) = rgb2hsv(frames(:,:,:,i));
     fprintf('Progress \t%d/%d \t(%.2f%%) \n',i,numFrames,i/numFrames*100);
 end
 
 %% Get colour params
-reference_frame = read(v,55);
+reference_frame = frames(:,:,:,55);
 
 % Get image parameters
 image_height = size(reference_frame,1);
@@ -36,7 +41,7 @@ image_width = size(reference_frame,2);
 
 % Load binary image
 file = matfile('shot_1_vid_high_res_binary_frame_55_attempt_2.mat');
-binaryImage = file.binaryImage;
+binaryImage = imresize(file.binaryImage,scale);
 
 % Get masked region
 reference_frame = reshape(reference_frame, [], 3);
@@ -66,7 +71,7 @@ original_target_histogram = target_histogram;
 reference_frame = reshape(reference_frame,image_height,image_width,3);
 imshow(bsxfun(@times, reference_frame, cast(binaryImage, 'like', reference_frame)));
 
-R = diag([100 100]);                                  % process noise 
+R = diag([100 100])*scale;                                  % process noise 
 
 %% Track with dynamic target distribution
 
@@ -82,11 +87,11 @@ S(1,:) = rand(1,M)*(image_height-1)+1;       % y
 S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 
 % Size of rectangles to draw
-rect_width = 30;
-rect_height = 30; 
+rect_width = 10;
+rect_height = 10; 
 
 % Measurement noise
-sigma = 0.1;
+sigma = 0.2;
 
 % Resampling threshold
 resampling_thresh = 0.2;
@@ -103,14 +108,14 @@ clear mean_state_observation_probabilities;
 
 % Specify contribution of mean state distribution and probability threshold
 mean_state_observation_prob_max=1;          % used for graphing
-mean_state_observation_prob_thresh = 0.6;
-alpha = 0.25;
+mean_state_observation_prob_thresh = 0.25;
+alpha = 0.05;
 
 target_histogram = original_target_histogram;
 
 % Decide mode for mean hist calculation
-mean_hist_calc_mode = 0;        % mean histogram
-% mean_hist_calc_mode = 1;        % hist_at_mean
+% mean_hist_calc_mode = 0;        % mean histogram
+mean_hist_calc_mode = 1;        % hist_at_mean
 
 for i = 1:numFrames
     
@@ -164,12 +169,18 @@ for i = 1:numFrames
     mean_x = sum(S(2,:).*S(3,:));
     mean_y = sum(S(1,:).*S(3,:));
 
+    % Plot mean positons
+    xLeft = mean_x - rect_width/2;
+    yBottom = mean_y - rect_height/2;
+    rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','g','LineWidth',1);
+
     % Calculate mean state histogram
     if mean_hist_calc_mode == 0
         mean_state_histogram = sum(bsxfun(@times, histograms, S(3,:)'),1);
     elseif mean_hist_calc_mode == 1
         [logical_image, out_of_image] = get_rectangle_mask_from_sample([mean_y;mean_x],image_height,image_width,rect_height,rect_width);
-        
+        % imshow(bsxfun(@times, reference_frame, cast(logical_image, 'like', reference_frame)));    
+
         % Check if particle is out of image
         if out_of_image
             continue;
@@ -192,15 +203,10 @@ for i = 1:numFrames
         target_histogram = (1-alpha) * target_histogram + alpha * mean_state_histogram;
     end
 
-    % Perform resampling every 5 steps
-    if min(distances)< resampling_thresh
+    % Perform resampling 
+    if min(distances)< resampling_thresh || true
         S = pf_systematic_resample(S,M);
     end
-
-    % Plot mean positons
-    xLeft = mean_x - rect_width/2;
-    yBottom = mean_y - rect_height/2;
-    rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','g','LineWidth',1);
 
     std_x = std(S(2,:));
     std_y = std(S(1,:));
@@ -224,8 +230,7 @@ for i = 1:numFrames
 
     fprintf('Tracking %d\nstd x : %0.3f\nstd y: %0.3f\n',tracking,std_x,std_y);
 
-    % plot observation prob
-    
+    % plot observation prob    
     subplot(1,2,2);
     hold off;
     plot(mean_state_observation_probabilities);
@@ -233,132 +238,6 @@ for i = 1:numFrames
     axis([0 numFrames 0 mean_state_observation_prob_max]);
     drawnow
 
-
-    pause(1/160);  
-    
-end
-
-figure;
-plot(mean_state_observation_probabilities);
-
-%% Track with static target distribution
-
-M = 200;                % number of particles
-S = zeros(3,M);         % set of particles  
-
-% distances and particle weights
-weights = zeros(1,M);
-distances = ones(1,M);
-particle_weights = zeros(1,M);
- 
-S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
-S(2,:) = rand(1,M)*(image_width-1)+1;        % x
-
-% Size of rectangles to draw
-rect_width = 30;
-rect_height = 30; 
-
-% Measurement noise
-sigma = 0.2;
-
-% Resampling threshold
-resampling_thresh = 0.2;
-
-% Keep track of whether the target has converged
-tracking = false;
-
-% Enable or disable initialisaiton
-reinit_particles = false;
-
-% Track mean state observation probability
-mean_state_observation_probabilities = zeros(1,numFrames);
-
-for i = 1:numFrames
-    
-
-    image = frames(:,:,:,i);
-    hsv_image = hsv_frames(:,:,:,i);
-    
-    hold off
-    imshow(image);
-    hold on;
-    
-    % Predict motion of particles
-    S = predict_noise(S,R,M);
-    
-    plot(S(2,:),S(1,:),'.');
-    xlim([0 image_width]);
-    ylim([0 image_height]);
-
-    % Store histograms
-    histograms = zeros(M,8*3);
-
-    % Update weights
-    for hist_index = 1:M
-        [logical_image, out_of_image] = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
-        
-        % Check if particle is out of image
-        if out_of_image
-            distances(hist_index) = distances(hist_index);
-            continue;
-        end
-    
-        % Get histogram
-        histogram = get_histogram(hsv_image,logical_image,false);
-        histogram = reshape(histogram',1,[]);
-        histograms(hist_index,:) = histogram;
-
-        % Get distance   
-        distance = bhattacharyya_distance(target_histogram,histogram);
-        distances(hist_index) = distance;
-    end
-
-    fprintf('Min distance %.2f \n\n', min(distances));
-    
-    % update weights
-    weights = 1/(sqrt(2*pi)*sigma)*exp(-distances.^2/(2*sigma^2));
-    S(3,:) = weights/sum(weights);
-
-    % Calculate mean state histogram
-    mean_state_histogram = sum(bsxfun(@times, histograms, S(3,:)'),1);
-    mean_state_hist_dist = bhattacharyya_distance(target_histogram,mean_state_histogram);
-    mean_state_observation_prob = 1/(sqrt(2*pi)*sigma)*exp(-mean_state_hist_dist.^2/(2*sigma^2));
-    mean_state_observation_probabilities(i)=mean_state_observation_prob;
-
-    % Perform resampling every 5 steps
-    if min(distances)< resampling_thresh
-        S = pf_systematic_resample(S,M);
-    end
-
-    % plot estimated position 
-    mean_x = sum(S(2,:).*S(3,:));
-    mean_y = sum(S(1,:).*S(3,:));
-
-    xLeft = mean_x - rect_width/2;
-    yBottom = mean_y - rect_height/2;
-    rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','g','LineWidth',3);
-
-    std_x = std(S(2,:));
-    std_y = std(S(1,:));
-
-    % Check if tracking
-    if std_x < 10 &&  std_y < 10 && ~tracking
-        tracking = true;
-    end 
-
-    if std_x >= 10 &&  std_y >= 10 && tracking
-        tracking = false;
-    end
-
-    % Check for standard variation of particles
-    if std_x > 15 &&  std_y > 15 && tracking && reinit_particles
-        S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
-        S(2,:) = rand(1,M)*(image_width-1)+1;        % x
-        S(3,:) = ones(1,M)*1/M;
-        tracking = false;
-    end
-
-    fprintf('Tracking %d\nstd x : %0.3f\nstd y: %0.3f\n',tracking,std_x,std_y);
 
     pause(1/60);  
     

@@ -14,7 +14,7 @@ while hasFrame(v)
 end
 
 % Set downsampling size
-scale = 0.3;
+scale = 0.4;
 
 % Get deminsions of frame
 ref_frame = read(v,1);
@@ -86,11 +86,11 @@ S(1,:) = rand(1,M)*(image_height-1)+1;       % y
 S(2,:) = rand(1,M)*(image_width-1)+1;        % x
 
 % Size of rectangles to draw
-rect_width = 15;
-rect_height = 10; 
+rect_width = 25;
+rect_height = 15; 
 
 % Measurement noise
-sigma = 0.1;
+sigma = 0.2;
 
 % Resampling threshold
 resampling_thresh = 0.2;
@@ -113,8 +113,8 @@ alpha = 0;
 target_histogram = original_target_histogram;
 
 % Decide mode for mean hist calculation
-mean_hist_calc_mode = 0;        % mean histogram
-% mean_hist_calc_mode = 1;        % hist_at_mean
+% mean_hist_calc_mode = 0;        % mean histogram
+mean_hist_calc_mode = 1;        % hist_at_mean
 
 for i = 1:numFrames
     
@@ -168,12 +168,18 @@ for i = 1:numFrames
     mean_x = sum(S(2,:).*S(3,:));
     mean_y = sum(S(1,:).*S(3,:));
 
+    % Plot mean positons
+    xLeft = mean_x - rect_width/2;
+    yBottom = mean_y - rect_height/2;
+    rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','g','LineWidth',1);
+
     % Calculate mean state histogram
     if mean_hist_calc_mode == 0
         mean_state_histogram = sum(bsxfun(@times, histograms, S(3,:)'),1);
     elseif mean_hist_calc_mode == 1
         [logical_image, out_of_image] = get_rectangle_mask_from_sample([mean_y;mean_x],image_height,image_width,rect_height,rect_width);
-        
+        % imshow(bsxfun(@times, reference_frame, cast(logical_image, 'like', reference_frame)));    
+
         % Check if particle is out of image
         if out_of_image
             continue;
@@ -200,11 +206,6 @@ for i = 1:numFrames
     if min(distances)< resampling_thresh || true
         S = pf_systematic_resample(S,M);
     end
-
-    % Plot mean positons
-    xLeft = mean_x - rect_width/2;
-    yBottom = mean_y - rect_height/2;
-    rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','g','LineWidth',1);
 
     std_x = std(S(2,:));
     std_y = std(S(1,:));
@@ -237,7 +238,7 @@ for i = 1:numFrames
     drawnow
 
 
-    pause(1/60);  
+    pause(1/160);  
     
 end
 
