@@ -35,7 +35,7 @@ image_height = size(reference_frame,1);
 image_width = size(reference_frame,2);
 
 % Load binary image
-file = matfile('shot_1_vid_high_res_binary_frame_55.mat');
+file = matfile('shot_1_vid_high_res_binary_frame_55_attempt_2.mat');
 binaryImage = file.binaryImage;
 
 % Get masked region
@@ -64,6 +64,7 @@ original_target_histogram = target_histogram;
 
 % Reshape reference back to original
 reference_frame = reshape(reference_frame,image_height,image_width,3);
+imshow(bsxfun(@times, reference_frame, cast(binaryImage, 'like', reference_frame)));
 
 R = diag([100 100]);                                  % process noise 
 
@@ -85,7 +86,7 @@ rect_width = 30;
 rect_height = 30; 
 
 % Measurement noise
-sigma = 0.2;
+sigma = 0.1;
 
 % Resampling threshold
 resampling_thresh = 0.2;
@@ -101,17 +102,23 @@ reinit_particles = false;
 clear mean_state_observation_probabilities;
 
 % Specify contribution of mean state distribution and probability threshold
-mean_state_observation_prob_thresh = 1;
-alpha = 0.05;
+mean_state_observation_prob_max=1;          % used for graphing
+mean_state_observation_prob_thresh = 0.6;
+alpha = 0.25;
 
 target_histogram = original_target_histogram;
 
+% Decide mode for mean hist calculation
+mean_hist_calc_mode = 0;        % mean histogram
+% mean_hist_calc_mode = 1;        % hist_at_mean
+
 for i = 1:numFrames
     
-
+    % Get image
     image = frames(:,:,:,i);
     hsv_image = hsv_frames(:,:,:,i);
     
+    % Plot image
     subplot(1,2,1);
     hold off
     imshow(image);
@@ -153,12 +160,31 @@ for i = 1:numFrames
     weights = 1/(sqrt(2*pi)*sigma)*exp(-distances.^2/(2*sigma^2));
     S(3,:) = weights/sum(weights);
 
+    % Get mean position 
+    mean_x = sum(S(2,:).*S(3,:));
+    mean_y = sum(S(1,:).*S(3,:));
+
     % Calculate mean state histogram
-    mean_state_histogram = sum(bsxfun(@times, histograms, S(3,:)'),1);
+    if mean_hist_calc_mode == 0
+        mean_state_histogram = sum(bsxfun(@times, histograms, S(3,:)'),1);
+    elseif mean_hist_calc_mode == 1
+        [logical_image, out_of_image] = get_rectangle_mask_from_sample([mean_y;mean_x],image_height,image_width,rect_height,rect_width);
+        
+        % Check if particle is out of image
+        if out_of_image
+            continue;
+        end
+    
+        % Get histogram
+        mean_state_histogram = get_histogram(hsv_image,logical_image,false);
+        mean_state_histogram = reshape(histogram',1,[]);
+    end
+
+    % Calculate distance to mean distribution
     mean_state_hist_dist = bhattacharyya_distance(target_histogram,mean_state_histogram);
 
     % Calculate mean state observation probability
-    mean_state_observation_prob = 1/(sqrt(2*pi)*sigma)*exp(-mean_state_hist_dist.^2/(2*sigma^2));
+    mean_state_observation_prob = exp(-mean_state_hist_dist.^2/(2*sigma^2));
     mean_state_observation_probabilities(i)=mean_state_observation_prob;
 
     % Apply histogram update
@@ -171,13 +197,10 @@ for i = 1:numFrames
         S = pf_systematic_resample(S,M);
     end
 
-    % plot estimated position 
-    mean_x = sum(S(2,:).*S(3,:));
-    mean_y = sum(S(1,:).*S(3,:));
-
+    % Plot mean positons
     xLeft = mean_x - rect_width/2;
     yBottom = mean_y - rect_height/2;
-    rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','g','LineWidth',3);
+    rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','g','LineWidth',1);
 
     std_x = std(S(2,:));
     std_y = std(S(1,:));
@@ -206,7 +229,8 @@ for i = 1:numFrames
     subplot(1,2,2);
     hold off;
     plot(mean_state_observation_probabilities);
-    axis([0 numFrames 0 2]);
+    mean_state_observation_prob_max = max(mean_state_observation_prob_max,mean_state_observation_prob);
+    axis([0 numFrames 0 mean_state_observation_prob_max]);
     drawnow
 
 

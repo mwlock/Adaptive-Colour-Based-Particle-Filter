@@ -15,7 +15,7 @@ imtool close all;	% Close all figure windows created by imtool.
 workspace;	% Make sure the workspace panel is showing.
 fontSize = 16;
 
-fullFileName = 'shot_1_vid_low_res.mp4';
+fullFileName = 'shot_1_vid_high_res.mp4';
 v = VideoReader(fullFileName);
 
 grayImage = read(v,55);
