@@ -15,10 +15,10 @@ imtool close all;	% Close all figure windows created by imtool.
 workspace;	% Make sure the workspace panel is showing.
 fontSize = 16;
 
-fullFileName = 'shot_1_vid_high_res.mp4';
+fullFileName = 'horse_v1.mp4';
 v = VideoReader(fullFileName);
 
-grayImage = read(v,55);
+grayImage = read(v,15);
 imshow(grayImage, []);
 axis on;
 title('Original Grayscale Image', 'FontSize', fontSize);
