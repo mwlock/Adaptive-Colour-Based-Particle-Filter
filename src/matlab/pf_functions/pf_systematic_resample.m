@@ -16,14 +16,17 @@
 %           S(t):           3XM
 function S = pf_systematic_resample(S_bar,M)
     
-    S = zeros(3,M);
-    cdf = cumsum(S_bar(3,:));
+    % Determine size of sample set
+    weights_index = size(S_bar,1);
+    
+    S = zeros(weights_index,M);
+    cdf = cumsum(S_bar(weights_index,:));
 
     r0 = rand()*1/M;
 
     for m = 1:M 
         i=find(cdf>=(r0 + (m-1)/M), 1 );
-        S(:,m)=[S_bar(1:2,i);1/M];
+        S(:,m)=[S_bar(1:weights_index-1,i);1/M];
     end
 
 end
