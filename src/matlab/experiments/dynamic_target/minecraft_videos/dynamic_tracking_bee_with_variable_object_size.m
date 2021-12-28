@@ -54,11 +54,9 @@ masked_pixels_HSV = rgb2hsv(masked_pixels);
 % Generate target histogram
 [h_counts,binLocations_h] = imhist(masked_pixels_HSV(:,:,1),8);
 h_counts = h_counts';
-h_counts(8)=0;
 imhist(masked_pixels_HSV(:,:,1),8);
 [s_counts,binLocations_s] = imhist(masked_pixels_HSV(:,:,2),8);
 s_counts = s_counts';
-s_counts(8)=0;
 [v_counts,binLocations_v] = imhist(masked_pixels_HSV(:,:,3),1);
 v_counts = v_counts';
 v_counts(8)=0;
@@ -83,13 +81,21 @@ S = zeros(3,M);         % set of particles
 weights = zeros(1,M);
 distances = ones(1,M);
 particle_weights = zeros(1,M);
- 
-S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
-S(2,:) = rand(1,M)*(image_width-1)+1;        % x
+
 
 % Size of rectangles to draw
 rect_width = 67*scale;
 rect_height = 42*scale; 
+
+% Set region of interest (ROI) limits
+roi_min = 10;
+roi_max = image_width;
+
+% Init particles
+S(1,:) = rand(1,M)*(image_height-1)+1;      % y     
+S(2,:) = rand(1,M)*(image_width-1)+1;       % x
+S(3,:) = ones(1,M)*rect_height;             % roc height
+S(4,:) = ones(1,M)*rect_width;              % roc width     
 
 % Measurement noise
 sigma = 0.2;
@@ -112,6 +118,7 @@ mean_state_observation_prob_max=1;          % used for graphing
 mean_state_observation_prob_thresh = 0.5;
 alpha = 0.0;
 
+% Retain original target distribution
 target_histogram = original_target_histogram;
 
 % Decide mode for mean hist calculation
@@ -125,7 +132,7 @@ for i = 1:175
     hsv_image = hsv_frames(:,:,:,i);
     
     % Plot image
-    % subplot(1,2,1);
+%     subplot(1,2,1);
     hold off
     imshow(image);
     hold on;
@@ -179,8 +186,8 @@ for i = 1:175
     if mean_hist_calc_mode == 0
         mean_state_histogram = sum(bsxfun(@times, histograms, S(3,:)'),1);
     elseif mean_hist_calc_mode == 1
-        [logical_image_mean_hist, out_of_image] = get_rectangle_mask_from_sample([mean_y;mean_x],image_height,image_width,rect_height,rect_width);
-        % imshow(bsxfun(@times, image, cast(logical_image_mean_hist, 'like', image)));    
+        [logical_image, out_of_image] = get_rectangle_mask_from_sample([mean_y;mean_x],image_height,image_width,rect_height,rect_width);
+        % imshow(bsxfun(@times, reference_frame, cast(logical_image, 'like', image)));    
 
         % Check if particle is out of image
         if out_of_image
@@ -188,7 +195,7 @@ for i = 1:175
         end
     
         % Get histogram
-        mean_state_histogram = get_histogram(hsv_image,logical_image_mean_hist,false);
+        mean_state_histogram = get_histogram(hsv_image,logical_image,false);
         mean_state_histogram = reshape(histogram',1,[]);
     end
 
@@ -232,12 +239,12 @@ for i = 1:175
     fprintf('Frame %d\nTracking %d\nstd x : %0.3f\nstd y: %0.3f\n',i,tracking,std_x,std_y);
 
     % plot observation prob    
-    %     subplot(1,2,2);
-    %     hold off;
-    %     plot(mean_state_observation_probabilities);
-    %     mean_state_observation_prob_max = max(mean_state_observation_prob_max,mean_state_observation_prob);
-    %     axis([0 numFrames 0 mean_state_observation_prob_max]);
-    %     drawnow
+%     subplot(1,2,2);
+%     hold off;
+%     plot(mean_state_observation_probabilities);
+%     mean_state_observation_prob_max = max(mean_state_observation_prob_max,mean_state_observation_prob);
+%     axis([0 numFrames 0 mean_state_observation_prob_max]);
+%     drawnow
 
 
     pause(1/160);  
