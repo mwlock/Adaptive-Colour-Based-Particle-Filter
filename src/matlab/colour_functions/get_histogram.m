@@ -32,19 +32,26 @@ function histogram = get_histogram(image, binaryImage,convert_to_hsv)
         masked_pixels = rgb2hsv(masked_pixels);
     end
     
+    % Parameters
+    h_bins = 32;
+    s_bins = 8;
+    v_bins =1;
+    
+    % Matrix sizing
+    max_bins = max([h_bins,s_bins,v_bins]);
+    
     % Get Colours histogram
-
-    [h_counts,~] = imhist(masked_pixels(:,:,1),8);
+    [h_counts,~] = imhist(masked_pixels(:,:,1),h_bins);
     h_counts = h_counts';
-    h_counts(8)=0;
+    h_counts(max_bins)=0;
 
-    [s_counts,~] = imhist(masked_pixels(:,:,2),8);
+    [s_counts,~] = imhist(masked_pixels(:,:,2),s_bins);
     s_counts = s_counts';
-    s_counts(8)=0;
+    s_counts(max_bins)=0;
 
-    [v_counts,~] = imhist(masked_pixels(:,:,3),1);
+    [v_counts,~] = imhist(masked_pixels(:,:,3),v_bins);
     v_counts = v_counts';
-    v_counts(8)=0;
+    v_counts(max_bins)=0;
     % v_counts = zeros(1,8);
     
     % Generate target histogram
