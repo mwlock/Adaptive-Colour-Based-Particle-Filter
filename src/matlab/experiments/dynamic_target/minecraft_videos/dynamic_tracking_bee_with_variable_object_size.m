@@ -32,56 +32,34 @@ for i = 1:numFrames
 end
 
 %% Get colour params
-reference_frame = frames(:,:,:,15);
+reference_frame= frames(:,:,:,15);
+reference_frame_hsv = hsv_frames(:,:,:,15);
 
 % Get image parameters
-image_height = size(reference_frame,1);
-image_width = size(reference_frame,2);
+image_height = size(reference_frame_hsv,1);
+image_width = size(reference_frame_hsv,2);
 
 % Load binary image
 file = matfile('bee_in_horsev1_binary_frame_15.mat');
 binaryImage = imresize(file.binaryImage,scale);
 
-% Get masked region
-reference_frame = reshape(reference_frame, [], 3);
-mask_reshaped = reshape(binaryImage, [], 1);
-masked_pixels = reference_frame(mask_reshaped,:);
-masked_pixels = reshape(masked_pixels, [], 1, 3);
-
-% convert RGB to HSV
-masked_pixels_HSV = rgb2hsv(masked_pixels);
-
-% Generate target histogram
-[h_counts,binLocations_h] = imhist(masked_pixels_HSV(:,:,1),8);
-h_counts = h_counts';
-imhist(masked_pixels_HSV(:,:,1),8);
-[s_counts,binLocations_s] = imhist(masked_pixels_HSV(:,:,2),8);
-s_counts = s_counts';
-[v_counts,binLocations_v] = imhist(masked_pixels_HSV(:,:,3),1);
-v_counts = v_counts';
-v_counts(8)=0;
-
-target_histogram = [h_counts;s_counts;v_counts];
-target_histogram = target_histogram / sum(target_histogram(1,:),2);
+% Get reference histogram
+target_histogram = get_histogram(reference_frame_hsv,binaryImage,false);
 target_histogram = reshape(target_histogram',1,[]);
 original_target_histogram = target_histogram;
 
-% Reshape reference back to original
-reference_frame = reshape(reference_frame,image_height,image_width,3);
+% Show pixels of interest
 imshow(bsxfun(@times, reference_frame, cast(binaryImage, 'like', reference_frame)));
-
 %% Track with dynamic target distribution
 
-R = diag([100 100])*scale;                                  % process noise 
+R = diag([10 10 0 0])*scale;                                  % process noise 
 
 M = 200;                % number of particles
-S = zeros(3,M);         % set of particles  
+S = zeros(5,M);         % set of particles  
 
 % distances and particle weights
 weights = zeros(1,M);
 distances = ones(1,M);
-particle_weights = zeros(1,M);
-
 
 % Size of rectangles to draw
 rect_width = 67*scale;
@@ -115,8 +93,8 @@ clear mean_state_observation_probabilities;
 
 % Specify contribution of mean state distribution and probability threshold
 mean_state_observation_prob_max=1;          % used for graphing
-mean_state_observation_prob_thresh = 0.5;
-alpha = 0.0;
+mean_state_observation_prob_thresh = 0.7;
+alpha = 0.05;
 
 % Retain original target distribution
 target_histogram = original_target_histogram;
@@ -125,30 +103,47 @@ target_histogram = original_target_histogram;
 % mean_hist_calc_mode = 0;        % mean histogram
 mean_hist_calc_mode = 1;        % hist_at_mean
 
-for i = 1:175
+% Store histograms
+histograms = zeros(M,size(target_histogram,2));
+
+for i = 1:numFrames
     
     % Get image
     image = frames(:,:,:,i);
     hsv_image = hsv_frames(:,:,:,i);
     
     % Plot image
-%     subplot(1,2,1);
+    % subplot(1,2,1);
     hold off
     imshow(image);
     hold on;
     
     % Predict motion of particles
-    S = predict_noise(S,R,M);
+    S = pf_predict_noise_and_region_size(S,R,M,roi_min,roi_max);
     
+    % Plot particles
     plot(S(2,:),S(1,:),'.');
     xlim([0 image_width]);
     ylim([0 image_height]);
 
-    % Store histograms
-    histograms = zeros(M,8*3);
+    % Plot particle regions
+    %     for m = 1:M
+    %         % Get region size
+    %         rect_width = S(4,m);
+    %         rect_height = S(3,m);
+    %         xLeft = S(2,m) - rect_width/2;
+    %         yBottom = S(1,m) - rect_height/2;
+    %         rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','b','LineWidth',1);
+    %     end   
 
     % Update weights
     for hist_index = 1:M
+
+        % Get region size
+        rect_width = S(4,hist_index);
+        rect_height = S(3,hist_index);
+        
+        % Get mask
         [logical_image, out_of_image] = get_rectangle_mask_from_sample(S(:,hist_index),image_height,image_width,rect_height,rect_width);
         
         % Check if particle is out of image
@@ -171,11 +166,14 @@ for i = 1:175
     
     % update weights
     weights = 1/(sqrt(2*pi)*sigma)*exp(-distances.^2/(2*sigma^2));
-    S(3,:) = weights/sum(weights);
+    weights = weights/sum(weights);
+    S(5,:) = weights;
 
     % Get mean position 
-    mean_x = sum(S(2,:).*S(3,:));
-    mean_y = sum(S(1,:).*S(3,:));
+    mean_x = sum(S(2,:).*S(5,:));
+    mean_y = sum(S(1,:).*S(5,:));
+    rect_height = sum(S(3,:).*S(5,:));
+    rect_width = sum(S(4,:).*S(5,:));
 
     % Plot mean positons
     xLeft = mean_x - rect_width/2;
@@ -184,7 +182,7 @@ for i = 1:175
 
     % Calculate mean state histogram
     if mean_hist_calc_mode == 0
-        mean_state_histogram = sum(bsxfun(@times, histograms, S(3,:)'),1);
+        mean_state_histogram = sum(bsxfun(@times, histograms, S(5,:)'),1);
     elseif mean_hist_calc_mode == 1
         [logical_image, out_of_image] = get_rectangle_mask_from_sample([mean_y;mean_x],image_height,image_width,rect_height,rect_width);
         % imshow(bsxfun(@times, reference_frame, cast(logical_image, 'like', image)));    
@@ -196,7 +194,7 @@ for i = 1:175
     
         % Get histogram
         mean_state_histogram = get_histogram(hsv_image,logical_image,false);
-        mean_state_histogram = reshape(histogram',1,[]);
+        mean_state_histogram = reshape(mean_state_histogram',1,[]);
     end
 
     % Calculate distance to mean distribution
@@ -204,10 +202,11 @@ for i = 1:175
 
     % Calculate mean state observation probability
     mean_state_observation_prob = exp(-mean_state_hist_dist.^2/(2*sigma^2));
-    mean_state_observation_probabilities(i)=mean_state_observation_prob;
+    mean_state_observation_probabilities(i)=mean_state_observation_prob; %#ok<SAGROW> 
 
     % Apply histogram update
     if mean_state_observation_prob > mean_state_observation_prob_thresh
+        rectangle('Position',[xLeft,yBottom,rect_width,rect_height],'EdgeColor','r','LineWidth',1);
         target_histogram = (1-alpha) * target_histogram + alpha * mean_state_histogram;
     end
 
@@ -232,7 +231,7 @@ for i = 1:175
     if std_x > 15 &&  std_y > 15 && tracking && reinit_particles
         S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
         S(2,:) = rand(1,M)*(image_width-1)+1;        % x
-        S(3,:) = ones(1,M)*1/M;
+        S(5,:) = ones(1,M)*1/M;
         tracking = false;
     end
 

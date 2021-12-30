@@ -1,9 +1,8 @@
 % Finding ball in video
 %
 % This file is used for the prediction step of the particle filter, where
-% the the motion model uses constant velocity in the x and y directions and
-% adds noise. Included in this prediction is a changing value for alpha and
-% alpha prime
+% the the motion model using a random walk model. The size of the region is
+% adjusted through the same model.
 %
 % "3D Trajectory Prediction of Basketball Shot Using Filtering Techniques
 % and Computer Vision" project. The project is a self picked topic for implementation
@@ -37,5 +36,5 @@ function [S_bar] = pf_predict_motion_and_colour(S,R,M,alpha_min,alpha_max)
     bigger = S_bar(5,:) > alpha_max;
     S_bar(5,smaller) = alpha_min;
     S_bar(5,bigger) = alpha_max;
-    
+
 end

@@ -62,7 +62,6 @@ S = zeros(3,M);         % set of particles
 % distances and particle weights
 weights = zeros(1,M);
 distances = ones(1,M);
-particle_weights = zeros(1,M);
  
 S(1,:) = rand(1,M)*(image_height-1)+1;       % y     
 S(2,:) = rand(1,M)*(image_width-1)+1;        % x
@@ -90,7 +89,7 @@ clear mean_state_observation_probabilities;
 % Specify contribution of mean state distribution and probability threshold
 mean_state_observation_prob_max=1;          % used for graphing
 mean_state_observation_prob_thresh = 0.7;
-alpha = 0.05;
+alpha = 0;
 
 target_histogram = original_target_histogram;
 
