@@ -25,6 +25,7 @@ function [S_bar] = pf_predict_noise_and_region_size(S,R,M,roi_min,roi_max)
 
     % Predicted Particle Set
     S_bar = S + noise;
+    S_bar = round(S_bar);
     
     % Check for y limits
     smaller_y = S_bar(3,:) < roi_min;

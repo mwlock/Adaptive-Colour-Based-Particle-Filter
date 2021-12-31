@@ -11,10 +11,26 @@
 % observation likelihood
 %           image                
 %           binaryImage
+
+%           center_coordinate [y,x]
 % Outputs: 
 %           histogram            3X8    
 
-function histogram = get_histogram(image, binaryImage,convert_to_hsv)
+function histogram = get_histogram(image, binaryImage,convert_to_hsv, center_coordinate)
+
+    % Check to see if working with weighted distribution
+     if nargin == 4
+        x_max = size(binaryImage,2);
+        y_max = size(binaryImage,1);
+        x = 1:x_max;
+        y = 1:y_max;
+        [X,Y] = meshgrid(x,y);
+        
+        % Distance mask
+        distance_mask = sqrt ((X-center_coordinate(2)).^2 + (Y-center_coordinate(1)).^2);
+
+        
+     end   
 
     % Check i fconversion to HSV is needed
     if nargin == 2
@@ -33,8 +49,8 @@ function histogram = get_histogram(image, binaryImage,convert_to_hsv)
     end
     
     % Parameters
-    h_bins = 8;
-    s_bins = 8;
+    h_bins = 32;
+    s_bins = 32;
     v_bins = 1;
     
     % Matrix sizing
@@ -50,7 +66,7 @@ function histogram = get_histogram(image, binaryImage,convert_to_hsv)
     [s_counts,~] = imhist(masked_pixels(:,:,2),s_bins);
     s_counts = s_counts';
     s = bins;
-    s(1:size(h_counts,2)) = s_counts;
+    s(1:size(s_counts,2)) = s_counts;
 
     [v_counts,~] = imhist(masked_pixels(:,:,3),v_bins);
     v_counts = v_counts';
