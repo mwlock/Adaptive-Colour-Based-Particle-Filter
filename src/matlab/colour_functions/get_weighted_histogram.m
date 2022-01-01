@@ -22,6 +22,10 @@ function histogram = get_weighted_histogram(image, binaryImage, center_coordinat
     h_bins = 8;
     s_bins = 8;
     v_bins = 1;
+
+    % Matrix sizing
+    max_bins = max([h_bins,s_bins,v_bins]);
+    bins = zeros(1,max_bins);
     
     % Distance mask
     %     distance_mask = sqrt ((X-center_coordinate(2)).^2 + (Y-center_coordinate(1)).^2);
@@ -46,14 +50,17 @@ function histogram = get_weighted_histogram(image, binaryImage, center_coordinat
     n = size(pixel_distances,1);
     
     % Calculate weights using distances
-    weights = ones(n,1);
-    weights = weights - (pixel_distances/a).^2;
+    weights = ones(n,1) - (pixel_distances/a).^2;
     weights = max(weights,0);
-    weights = weights/sum(weights);
     
-    % Matrix sizing
-    max_bins = max([h_bins,s_bins,v_bins]);
-    bins = zeros(1,max_bins);
+    % Check if there are weighted pixels
+    if sum(weights)==0
+        histogram = [0];
+        return
+    end
+    
+    % Normalise weights
+    weights = weights/sum(weights);
     
     % Get Colours histogram
     [h_counts,~] = weighted_histogram(masked_pixels(:,:,1), weights, 0, 1, h_bins);
