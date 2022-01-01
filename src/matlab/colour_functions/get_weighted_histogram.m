@@ -19,7 +19,7 @@
 function histogram = get_weighted_histogram(image, binaryImage, center_coordinate,a,X,Y)
     
     % Parameters
-    h_bins = 8;
+    h_bins = 32;
     s_bins = 8;
     v_bins = 1;
 
