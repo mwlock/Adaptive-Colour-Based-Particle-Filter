@@ -143,6 +143,7 @@ for k=1:maxk
   p=line(radm*cos(the)*co-si*radn*sin(the)+xpos,radm*cos(the)*si+co*radn*sin(the)+ypos);
 
   set(p,'color',C(rem(k-1,size(C,1))+1,:));
+  set(p,'LineWidth',2);
   
   % output handles to each ellipse if output variable specified
   

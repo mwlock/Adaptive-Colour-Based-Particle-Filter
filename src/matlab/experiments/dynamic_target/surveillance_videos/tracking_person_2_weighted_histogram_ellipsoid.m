@@ -3,7 +3,7 @@
 
 % Clean environment and load video
 clc; clear;
-video = "highway_thai.mp4";
+video = "busy_changing_light.mp4";
 
 % Get number of frames
 v = VideoReader(video); numFrames = 0;
@@ -14,7 +14,7 @@ while hasFrame(v)
 end
 
 % Set downsampling size
-scale = 0.3;
+scale = 0.6;
 
 % Get deminsions of frame
 ref_frame = read(v,1);
@@ -51,10 +51,10 @@ reference_frame= frames(:,:,:,1);
 reference_frame_hsv = hsv_frames(:,:,:,1);
 
 % Parameters
-center_x_coordinate = 245;
-center_y_coordinate = 20;
-Hx_initial = 6;
-Hy_initial = 6; 
+center_x_coordinate = 428;
+center_y_coordinate = 270;
+Hx_initial = 8;
+Hy_initial = 12; 
 
 % Show tuning
 imshow(reference_frame);
@@ -121,7 +121,7 @@ clear mean_state_observation_probabilities;
 % Specify contribution of mean state distribution and probability threshold
 mean_state_observation_prob_max=1;          % used for graphing
 mean_state_observation_prob_thresh = 0.7;
-alpha = 0;
+alpha = 0.05;
 
 % Retain original target distribution
 target_histogram = original_target_histogram;
@@ -137,7 +137,7 @@ histograms = zeros(M,size(target_histogram,2));
 % Save the mean state
 mean_state = zeros(5,M);
 
-for i = 20:numFrames
+for i = 1:numFrames
 
     % Get image
     image = frames(:,:,:,i);

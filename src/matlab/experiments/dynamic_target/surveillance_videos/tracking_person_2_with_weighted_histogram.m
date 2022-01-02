@@ -49,10 +49,6 @@ y = 1:y_max;
 reference_frame= frames(:,:,:,1);
 reference_frame_hsv = hsv_frames(:,:,:,1);
 
-% Load binary image
-file = matfile('bee_in_horsev1_binary_frame_15.mat');
-binaryImage = imresize(file.binaryImage,scale);
-
 % Parameters
 center_x_coordinate = 428;
 center_y_coordinate = 270;

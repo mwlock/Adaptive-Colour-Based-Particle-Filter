@@ -74,9 +74,9 @@ target_histogram = reshape(target_histogram',1,[]);
 original_target_histogram = target_histogram;
 %% Track with dynamic target distribution
 
-R = diag([20 20 5 5])*scale;                                  % process noise 
+R = diag([50 50 20 20])*scale;                                  % process noise 
 
-M = 400;                % number of particles
+M = 200;                % number of particles
 S = zeros(5,M);         % set of particles  
 
 % distances and particle weights
@@ -94,8 +94,10 @@ roi_min = 0;
 roi_max = image_width;
 
 % Init particles
-S(1,:) = rand(1,M)*(image_height-1)+1;      % y     
-S(2,:) = rand(1,M)*(image_width-1)+1;       % x
+% S(1,:) = rand(1,M)*(image_height-1)+1;      % y     
+% S(2,:) = rand(1,M)*(image_width-1)+1;       % x
+S(1,:) = ones(1,M)*center_y_coordinate;     % y     
+S(2,:) = ones(1,M)*center_x_coordinate;     % x
 S(3,:) = ones(1,M)*Hy;                      % roi height
 S(4,:) = ones(1,M)*Hx;                      % roi width     
 S(5,:) = ones(1,M)/M;                       % weights
@@ -118,7 +120,7 @@ clear mean_state_observation_probabilities;
 
 % Specify contribution of mean state distribution and probability threshold
 mean_state_observation_prob_max=1;          % used for graphing
-mean_state_observation_prob_thresh = 0.9;
+mean_state_observation_prob_thresh = 0.8;
 alpha = 0.05;
 
 % Retain original target distribution
@@ -130,6 +132,9 @@ mean_hist_calc_mode = 1;        % hist_at_mean
 
 % Store histograms
 histograms = zeros(M,size(target_histogram,2));
+
+% Save the mean state
+mean_state = zeros(5,M);
 
 for i = 20:numFrames
 
@@ -245,6 +250,9 @@ for i = 20:numFrames
         target_histogram = (1-alpha) * target_histogram + alpha * mean_state_histogram;
     end
 
+    % Save the mean state
+    mean_state(:,i) = [mean_y;mean_x;Hy_mean;Hx_mean;mean_state_observation_prob];
+
     % Perform resampling 
     if min(distances)< resampling_thresh || true
         S = pf_systematic_resample(S,M);
@@ -285,5 +293,28 @@ for i = 20:numFrames
     
 end
 
-figure;
-plot(mean_state_observation_probabilities);
+%% Result plotter
+
+for i = 20:numFrames
+
+    image = frames(:,:,:,i);    
+    hold off;
+    imshow(image);
+    hold on;
+
+    y = mean_state(1,i);
+    x = mean_state(2,i);
+    Hy = mean_state(3,i);
+    Hx = mean_state(4,i);
+    observation_prob = mean_state(5,i);
+    c = 'g';
+    if observation_prob > mean_state_observation_prob_thresh
+        c = 'r';
+    end
+
+    ellipse(Hx,Hy,0,x,y,c);
+    pause(1/60);
+end
+
+
+
