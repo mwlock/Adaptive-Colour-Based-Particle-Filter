@@ -121,7 +121,7 @@ clear mean_state_observation_probabilities;
 % Specify contribution of mean state distribution and probability threshold
 mean_state_observation_prob_max=1;          % used for graphing
 mean_state_observation_prob_thresh = 0.8;
-alpha = 0.05;
+alpha = 0;
 
 % Retain original target distribution
 target_histogram = original_target_histogram;
@@ -135,6 +135,9 @@ histograms = zeros(M,size(target_histogram,2));
 
 % Save the mean state
 mean_state = zeros(5,M);
+
+% save all samples
+all_samples = zeros(5,M,numFrames);
 
 for i = 20:numFrames
 
@@ -258,6 +261,9 @@ for i = 20:numFrames
         S = pf_systematic_resample(S,M);
     end
 
+    % Save partilces
+    all_samples(:,:,i)=S;
+
     std_x = std(S(2,:));
     std_y = std(S(1,:));
 
@@ -295,12 +301,25 @@ end
 
 %% Result plotter
 
-for i = 20:numFrames
+for i = 500:numFrames
 
     image = frames(:,:,:,i);    
     hold off;
     imshow(image);
     hold on;
+    
+    % plot samples
+    % plot(all_samples(2,:,i),all_samples(1,:,i),'.');
+
+    % Draw ellipses around partilces
+    %     for m = 1:M
+    %         % Get region size
+    %         Hx = all_samples(4,m,i);
+    %         Hy = all_samples(3,m,i);
+    %         x = all_samples(2,m,i);
+    %         y = all_samples(1,m,i);
+    %         ellipse(Hx,Hy,0,x,y,'g');
+    %     end   
 
     y = mean_state(1,i);
     x = mean_state(2,i);
@@ -313,8 +332,22 @@ for i = 20:numFrames
     end
 
     ellipse(Hx,Hy,0,x,y,c);
+
+    if i == 540 
+        disp(i);
+    end
+
+
     pause(1/60);
+
+
 end
+
+%% plot observation graph
+
+plot(mean_state(5,1:end))
+xlim([0 size(mean_state(5,1:end),2)]);
+% ylim([0 image_height]);
 
 
 

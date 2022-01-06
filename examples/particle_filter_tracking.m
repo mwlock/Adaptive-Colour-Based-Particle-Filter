@@ -1,20 +1,90 @@
-%% Track ball in video
-% DO NOT CHANGE PARAMTERS
+%% Track basketball during freethrow
 
-% Clean environment and load video
+% "Object tracking using colour histogram based Particle filter". 
+% The project was implemented for the Appied Estimation course at
+% the KTH Royal Institute of Technology in the 2021 Autumn semester.
+%
+% Authors : 
+% Matthew William Lock (mwlock@kth.se)
+% Miguel Garcia Naude (magn2@kth.se)
+
+%% Clear environment;
 clc; clear;
-video = "highway_thai.mp4";
+%% Setup environment for testing
+videos = ["shot_1_vid_high_res.mp4","highway_thai.mp4","horse_v1.mp4","busy_changing_light.mp4"];
+scales = [0.3,0.3,0.3,0.6];
+reference_frame_numbers = [55,1,15,1];
+center_x_coordinates = [212,245,532,428];
+center_y_coordinates = [45,20,142,270];
+Hx_initials = [5,6,10,8];
+Hy_initials = [5,6,5,12];
+Rs = [[20 20 5 5];[20 20 5 5];[50 50 20 20];[20 20 5 5]];
+
+% PARAMETERS TO CHANGE FOR DIFFERENT EXPERIMENTS
+%---------------------------------------------------------------------------
+
+% This parameter controls which simulation to run. Selecting different a
+% different value for "simulation" will change the video used for
+% simulation, as well as all the appropriate parameters. 
+% "simulation = 1" = basketball freeshot tracking
+% "simulation = 2" = motor vehicle tracking
+simulation = 1;
+
+% Parameter used to turn off localisation
+% "localisation = 0" = localisation of
+% "localisation = 1" = localisation on 
+localisation = 1;
+
+% Mean state observation thershold for dyanmic target distribution
+mean_state_observation_prob_thresh = 0.8;
+
+% Speed of dynamic target distribution update
+alpha = 0.05;
+
+% Parameter used to draw particles
+% "show_particles = 0" = don't draw particles
+% "show_particles = 1" = draw particles
+show_particles = 0;
+
+% Parameter used to draw regions around particles
+% "show_particle_regions = 0" = don't draw particle regions
+% "show_particle_regions = 1" = draw particle regions, reduces performance
+show_particle_regions = 0;
+
+% Number of particles
+M = 100;
+
+% Measurement noise covariance matrix
+sigma = 0.2;
+
+% Scale video resolution from [0,1]
+% scale = 0.5
+
+%---------------------------------------------------------------------------
+
+% Set downsampling size
+scale = scales(simulation);
+
+% Process noise covariance matrix
+R = diag(Rs(simulation,:))*scale;
+
+% Region size
+center_x_coordinate = center_x_coordinates(simulation);
+center_y_coordinate = center_y_coordinates(simulation);
+Hx_initial = Hx_initials(simulation);
+Hy_initial = Hy_initials(simulation); 
+%% Run tracking simulation
+
+% Set the video
+video = videos(simulation);
 
 % Get number of frames
 v = VideoReader(video); numFrames = 0;
 while hasFrame(v)
     readFrame(v);
     numFrames = numFrames + 1;
-    fprintf('Number of frames : %d \n',numFrames);
+    fprintf('Reading video frames : %d \n',numFrames);
 end
-
-% Set downsampling size
-scale = 0.3;
 
 % Get deminsions of frame
 ref_frame = read(v,1);
@@ -28,15 +98,12 @@ image_width = dimensions(2);
 frames = uint8(zeros([dimensions numFrames]));
 hsv_frames = zeros([dimensions numFrames]);
 
-% Apply blur to image
-blur_std = 0.5;
-
 % Load frames
 for i = 1:numFrames
     frames(:,:,:,i) = uint8(imresize(read(v,i),scale));
     % hsv_frames(:,:,:,i) = rgb2hsv(imgaussfilt(frames(:,:,:,i),blur_std));
     hsv_frames(:,:,:,i) = rgb2hsv(frames(:,:,:,i));
-    fprintf('Progress \t%d/%d \t(%.2f%%) \n',i,numFrames,i/numFrames*100);
+    fprintf('Converting frames to HSV \t%d/%d \t(%.2f%%) \n',i,numFrames,i/numFrames*100);
 end
 
 % Create meshgrid
@@ -46,67 +113,53 @@ x = 1:x_max;
 y = 1:y_max;
 [X,Y] = meshgrid(x,y);
 
-%% Tune initial histogram
-reference_frame= frames(:,:,:,1);
-reference_frame_hsv = hsv_frames(:,:,:,1);
-
-% Parameters
-center_x_coordinate = 245;
-center_y_coordinate = 20;
-Hx_initial = 6;
-Hy_initial = 6; 
+% Tune initial histogram
+reference_frame_number = reference_frame_numbers(simulation);
+reference_frame= frames(:,:,:,reference_frame_number);
+reference_frame_hsv = hsv_frames(:,:,:,reference_frame_number);
 
 % Show tuning
-imshow(reference_frame);
-hold on;
-ellipse(Hx_initial,Hy_initial,0,center_x_coordinate,center_y_coordinate,'g');
+% imshow(reference_frame);
+% hold on;
+% ellipse(Hx_initial,Hy_initial,0,center_x_coordinate,center_y_coordinate,'g');
 
-%% Show mask
+% Show mask
 logical_image = get_ellipse_mask(center_x_coordinate,center_y_coordinate,Hx_initial,Hy_initial,X,Y);
-imshow(bsxfun(@times, reference_frame, cast(logical_image, 'like', reference_frame)));
+% imshow(bsxfun(@times, reference_frame, cast(logical_image, 'like', reference_frame)));
 
-%% Get reference histogram
+% Get reference histogram
 a = sqrt((Hx_initial/2)^2 + (Hy_initial/2)^2);
-tic;
 target_histogram = get_weighted_histogram(reference_frame_hsv,logical_image,[center_y_coordinate,center_x_coordinate],a,X,Y);
-toc;
 target_histogram = reshape(target_histogram',1,[]);
 original_target_histogram = target_histogram;
-%% Track with dynamic target distribution
+%% Track 
 
-R = diag([20 20 5 5])*scale;                                  % process noise 
+% close all figures
+close all;
 
-M = 200;                % number of particles
-S = zeros(5,M);         % set of particles  
+S = zeros(5,M);         % set of particles
+Hx = Hx_initial;
+Hy = Hy_initial; 
 
 % distances and particle weights
 weights = zeros(1,M);
 distances = ones(1,M);
-
-% Size of rectangles to draw
-% rect_width = 67*scale;
-% rect_height = 42*scale; 
-Hx = Hx_initial;
-Hy = Hy_initial; 
 
 % Set region of interest (ROI) limits
 roi_min = 0;
 roi_max = image_width;
 
 % Init particles
-% S(1,:) = rand(1,M)*(image_height-1)+1;      % y     
-% S(2,:) = rand(1,M)*(image_width-1)+1;       % x
+if localisation == 1
+S(1,:) = rand(1,M)*(image_height-1)+1;      % y     
+S(2,:) = rand(1,M)*(image_width-1)+1;       % x
+else
 S(1,:) = ones(1,M)*center_y_coordinate;     % y     
 S(2,:) = ones(1,M)*center_x_coordinate;     % x
+end
 S(3,:) = ones(1,M)*Hy;                      % roi height
 S(4,:) = ones(1,M)*Hx;                      % roi width     
 S(5,:) = ones(1,M)/M;                       % weights
-
-% Measurement noise
-sigma = 0.2;
-
-% Resampling threshold
-resampling_thresh = 0.4;
 
 % Keep track of whether the target has converged
 tracking = false;
@@ -120,8 +173,6 @@ clear mean_state_observation_probabilities;
 
 % Specify contribution of mean state distribution and probability threshold
 mean_state_observation_prob_max=1;          % used for graphing
-mean_state_observation_prob_thresh = 0.7;
-alpha = 0.05;
 
 % Retain original target distribution
 target_histogram = original_target_histogram;
@@ -139,7 +190,14 @@ mean_state = zeros(5,M);
 % save all samples
 all_samples = zeros(5,M,numFrames);
 
-for i = 20:numFrames
+% Open full screen figure
+figure('units','normalized','outerposition',[0 0 1 1])
+
+% Plot axes
+subplot(1,2,1);
+
+
+for i = 1:numFrames
 
     % Get image
     image = frames(:,:,:,i);
@@ -149,25 +207,32 @@ for i = 20:numFrames
     subplot(1,2,1);
     hold off;
     imshow(image);
+    title(sprintf('Object tracking, M = %d particles',M));
+    xlabel(sprintf('Frame : %d',i'));
     hold on;
     
     % Predict motion of particles
     S = pf_predict_noise_and_region_size(S,R,M,roi_min,roi_max);
     
     % Plot particles
-    % plot(S(2,:),S(1,:),'.');    
+    if show_particles == 1
+        plot(S(2,:),S(1,:),'.'); 
+    end
+  
     xlim([0 image_width]);
     ylim([0 image_height]);
 
     % Plot particle regions
-%     for m = 1:M
-%         % Get region size
-%         Hx = S(4,m);
-%         Hy = S(3,m);
-%         x = S(2,m);
-%         y = S(1,m);
-%         ellipse(Hx,Hy,0,x,y,'g');
-%     end   
+    if show_particle_regions
+        for m = 1:M  %#ok<UNRCH> 
+            % Get region size
+            Hx = S(4,m);
+            Hy = S(3,m);
+            x = S(2,m);
+            y = S(1,m);
+            ellipse(Hx,Hy,0,x,y,'g');
+        end  
+    end 
 
     % Update weights
     
@@ -204,7 +269,6 @@ for i = 20:numFrames
             % Get distance   
             distance = bhattacharyya_distance(target_histogram,histogram);
             distances(hist_index) = distance;
-
         end
 
     end
@@ -257,9 +321,7 @@ for i = 20:numFrames
     mean_state(:,i) = [mean_y;mean_x;Hy_mean;Hx_mean;mean_state_observation_prob];
 
     % Perform resampling 
-    if min(distances)< resampling_thresh || true
-        S = pf_systematic_resample(S,M);
-    end
+    S = pf_systematic_resample(S,M);
 
     % Save partilces
     all_samples(:,:,i)=S;
@@ -292,60 +354,11 @@ for i = 20:numFrames
     plot(mean_state_observation_probabilities);
     mean_state_observation_prob_max = max(mean_state_observation_prob_max,mean_state_observation_prob);
     axis([0 numFrames 0 mean_state_observation_prob_max]);
-    drawnow
-
-
-%     pause(1/160);  
-    
+    title('Mean state observation probability \pi_{E(S)} over time');
+    xlabel('Frame');
+    ylabel('Mean state observation probability \pi_{E(S)}');
+    t = yline(mean_state_observation_prob_thresh,'r','Observation probability threshold \pi_T');
+    drawnow;
+        
 end
-
-%% Result plotter
-
-for i = 1:numFrames
-
-    image = frames(:,:,:,i);    
-    hold off;
-    imshow(image);
-    hold on;
-    
-    % plot samples
-    % plot(all_samples(2,:,i),all_samples(1,:,i),'.');
-
-    % Draw ellipses around partilces
-    %     for m = 1:M
-    %         % Get region size
-    %         Hx = all_samples(4,m,i);
-    %         Hy = all_samples(3,m,i);
-    %         x = all_samples(2,m,i);
-    %         y = all_samples(1,m,i);
-    %         ellipse(Hx,Hy,0,x,y,'g');
-    %     end   
-
-    y = mean_state(1,i);
-    x = mean_state(2,i);
-    Hy = mean_state(3,i);
-    Hx = mean_state(4,i);
-    observation_prob = mean_state(5,i);
-    c = 'g';
-    if observation_prob > mean_state_observation_prob_thresh
-        c = 'r';
-    end
-
-    ellipse(Hx,Hy,0,x,y,c);
-
-    if i == 680 
-        disp(i);
-    end
-
-
-    pause(1/60);
-
-
-end
-
-%% plot observation graph
-
-plot(mean_state(5,1:end))
-xlim([0 size(mean_state(5,1:end),2)]);
-% ylim([0 image_height]);
 

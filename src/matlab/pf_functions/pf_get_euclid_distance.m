@@ -7,6 +7,7 @@
 %
 % Authors : 
 % Matthew William Lock (mwlock@kth.se)
+% Miguel Garcia Naude (magn2@kth.se)
 
 function distance = pf_get_euclid_distance(target,sample)
 

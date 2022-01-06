@@ -19,8 +19,8 @@
 function histogram = get_weighted_histogram(image, binaryImage, center_coordinate,a,X,Y)
     
     % Parameters
-    h_bins = 32;
-    s_bins = 8;
+    h_bins = 16;
+    s_bins = 16;
     v_bins = 1;
 
     % Matrix sizing
