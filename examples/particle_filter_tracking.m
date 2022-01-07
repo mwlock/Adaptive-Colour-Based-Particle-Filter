@@ -28,18 +28,20 @@ Rs = [[20 20 5 5];[20 20 5 5];[50 50 20 20];[20 20 5 5]];
 % simulation, as well as all the appropriate parameters. 
 % "simulation = 1" = basketball freeshot tracking
 % "simulation = 2" = motor vehicle tracking
-simulation = 1;
+% "simulation = 3" = bee tracking
+% "simulation = 4" = surveilance tracking
+simulation = 3;
 
 % Parameter used to turn off localisation
 % "localisation = 0" = localisation of
 % "localisation = 1" = localisation on 
-localisation = 1;
+localisation = 0;
 
 % Mean state observation thershold for dyanmic target distribution
-mean_state_observation_prob_thresh = 0.8;
+mean_state_observation_prob_thresh = 0.7;
 
 % Speed of dynamic target distribution update
-alpha = 0.05;
+alpha = 0;
 
 % Parameter used to draw particles
 % "show_particles = 0" = don't draw particles
@@ -52,13 +54,16 @@ show_particles = 0;
 show_particle_regions = 0;
 
 % Number of particles
-M = 100;
+M = 200;
 
 % Measurement noise covariance matrix
 sigma = 0.2;
 
 % Scale video resolution from [0,1]
 % scale = 0.5
+
+% Use this variable to save output to a video 
+save_video = 1;
 
 %---------------------------------------------------------------------------
 
@@ -73,6 +78,11 @@ center_x_coordinate = center_x_coordinates(simulation);
 center_y_coordinate = center_y_coordinates(simulation);
 Hx_initial = Hx_initials(simulation);
 Hy_initial = Hy_initials(simulation); 
+
+% Directory for saving videos
+workingDir = 'simulation_results';
+mkdir(workingDir)
+mkdir(workingDir,'images')
 %% Run tracking simulation
 
 % Set the video
@@ -196,15 +206,19 @@ figure('units','normalized','outerposition',[0 0 1 1])
 % Plot axes
 subplot(1,2,1);
 
+outputVideo = VideoWriter(fullfile(workingDir,sprintf('simulation_%d',simulation)));
+outputVideo.FrameRate = v.FrameRate;
+open(outputVideo)
 
-for i = 1:numFrames
+
+for i = 20:numFrames
 
     % Get image
     image = frames(:,:,:,i);
     hsv_image = hsv_frames(:,:,:,i);
     
     % Plot image
-    subplot(1,2,1);
+    video_figure = subplot(1,2,1);
     hold off;
     imshow(image);
     title(sprintf('Object tracking, M = %d particles',M));
@@ -348,6 +362,9 @@ for i = 1:numFrames
 
     fprintf('Frame %d\nTracking %d\nstd x : %0.3f\nstd y: %0.3f\n',i,tracking,std_x,std_y);
 
+    F = getframe;
+    img = frame2im(F);
+
     % plot observation prob    
     subplot(1,2,2);
     hold off;
@@ -359,6 +376,15 @@ for i = 1:numFrames
     ylabel('Mean state observation probability \pi_{E(S)}');
     t = yline(mean_state_observation_prob_thresh,'r','Observation probability threshold \pi_T');
     drawnow;
+
+    % Save video output
+    if save_video
+        writeVideo(outputVideo,img);
+    end
         
 end
+
+close(outputVideo);
+
+
 

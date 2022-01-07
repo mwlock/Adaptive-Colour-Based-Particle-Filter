@@ -2,3 +2,4 @@
 *.asv
 binary_image.mat
 /results
+*.avi
