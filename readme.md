@@ -6,7 +6,13 @@ Several methods exist to track objects. The particle filter has proven to be use
 
 ## Results
 
-#### Simple Target Tracking
+#### Simple target tracking
 
 ![freethrow](/simulation_results/gifs/freethrow.gif)
-<img src="/simulation_results/gifs/freethrow.gif" width="40" height="40" />
+<!-- <img src="/simulation_results/gifs/freethrow.gif" width="40" height="40" /> -->
+
+#### Adaptive tracking for motor vehicle
+
+Static target            |  Adaptive target
+:-------------------------:|:-------------------------:
+![freethrow](/simulation_results/gifs/car_static.gif) |  ![freethrow](/simulation_results/gifs/simulation_2_adaptive.gif)
