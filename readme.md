@@ -15,4 +15,4 @@ Several methods exist to track objects. The particle filter has proven to be use
 
 Static target            |  Adaptive target
 :-------------------------:|:-------------------------:
-![freethrow](/simulation_results/gifs/car_static.gif) |  ![freethrow](/simulation_results/gifs/simulation_2_adaptive.gif)
+![freethrow](/simulation_results/gifs/car_static.gif) |  ![freethrow](/simulation_results/gifs/car_dynamic.gif)
