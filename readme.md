@@ -8,5 +8,5 @@ Several methods exist to track objects. The particle filter has proven to be use
 
 #### Simple Target Tracking
 
-![freethrow](/simulation_results/gifs/freethrowpng.gif)
-<img src="/simulation_results/gifs/freethrowpng.gif" width="40" height="40" />
+![freethrow](/simulation_results/gifs/freethrow.gif)
+<img src="/simulation_results/gifs/freethrow.gif" width="40" height="40" />
