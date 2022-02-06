@@ -1,6 +1,6 @@
 # Project Research
 
-Included in this section is a list of papers we found to be interesting and of value. The papers are (mostly) grouped according to their region of interest.
+Included in this section is a list of papers we found to be interesting and of value. The papers are (mostly) grouped according to their region of interest. The list is not exhaustive and does not neccessarily include all papers/material used to motivate the final report produced for the project.
 
 
 ## Particle Filter Based Object Tracking

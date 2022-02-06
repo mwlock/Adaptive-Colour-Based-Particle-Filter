@@ -1,8 +1,6 @@
 # Object Tracking using a Color-Based Particle Filter with an Adaptive Target Color Distribution
 
-Authors:
-- [Miguel Garcia Naude](https://github.com/migsdigs)
-- [Matthew Lock](https://github.com/matthew-william-lock)
+Authors:[Miguel Garcia Naude](https://github.com/migsdigs), [Matthew Lock](https://github.com/matthew-william-lock)
 
 ## Abstract
 
@@ -10,13 +8,15 @@ Several methods exist to track objects. The particle filter has proven to be use
 
 ## Results
 
-#### Simple target tracking
-
-![freethrow](/simulation_results/gifs/freethrow.gif)
-<!-- <img src="/simulation_results/gifs/freethrow.gif" width="40" height="40" /> -->
-
 #### Adaptive tracking for motor vehicle
 
 Static target            |  Adaptive target
 :-------------------------:|:-------------------------:
-![freethrow](/simulation_results/gifs/car_static.gif) |  ![freethrow](/simulation_results/gifs/car_dynamic.gif)
+| ![car_Static](/simulation_results/gifs/car_static.gif) <br> Static target|  ![car_dynamic](/simulation_results/gifs/car_dynamic.gif) <br> Adaptive target |
+|![freethrow](/simulation_results/gifs/freethrow.gif) <br> Simple object tracking|  ![surveillance](/simulation_results/gifs/surveillance.gif) <br> Adaptive lighting confitions|
+
+An excerpt of the results shown above allude to the advantages of dynamic colour targets for objects with slowly changing color distributions. Other results highlight the filters general ability to track, as well as highlighting the shortfalls of tracking under extremely dynamic lighting conditions.
+
+## Running the code
+
+Further documentation regarding the execution of the simulations produced for this project can be found in the ```examples``` folder of this repository.

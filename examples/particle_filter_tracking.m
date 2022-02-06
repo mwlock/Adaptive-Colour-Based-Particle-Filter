@@ -30,7 +30,7 @@ Rs = [[20 20 5 5];[20 20 5 5];[50 50 20 20];[20 20 5 5]];
 % "simulation = 2" = motor vehicle tracking
 % "simulation = 3" = bee tracking
 % "simulation = 4" = surveilance tracking
-simulation = 3;
+simulation = 4;
 
 % Parameter used to turn off localisation
 % "localisation = 0" = localisation of
