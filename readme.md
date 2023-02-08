@@ -1,6 +1,11 @@
-# Object Tracking using a Color-Based Particle Filter with an Adaptive Target Color Distribution
+<h1 align="center"Object Tracking using a Color-Based Particle Filter with an Adaptive Target Color Distribution</h1>
 
-Authors : [Miguel Garcia Naude](https://github.com/migsdigs), [Matthew Lock](https://github.com/matthew-william-lock)
+[<img src="/images/matthew_report.png" width="50%">](https://www.overleaf.com/read/ydqcxkjznwsd)
+
+[<img src="/images/miguel_report.png" width="50%">](https://www.overleaf.com/read/ydqcxkjznwsd)
+
+**Authors** 
+> [Miguel Garcia Naude](https://github.com/migsdigs), [Matthew Lock](https://github.com/matthew-william-lock)
 
 ## Abstract
 
