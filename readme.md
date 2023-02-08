@@ -1,4 +1,4 @@
-<h1 align="center"Object Tracking using a Color-Based Particle Filter with an Adaptive Target Color Distribution</h1>
+<h1 align="center">Object Tracking using a Color-Based Particle Filter with an Adaptive Target Color Distribution</h1>
 
 [<img src="/images/matthew_report.png" width="50%">](https://www.overleaf.com/read/ydqcxkjznwsd)
 
