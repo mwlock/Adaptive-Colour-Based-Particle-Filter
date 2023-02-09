@@ -2,7 +2,7 @@
 
 |   |   |
 |---|---|
-| [<img src="/images/miguel_report.png" width="100%">](https://www.overleaf.com/read/ydqcxkjznwsd) <br> Miguel's Report| [<img src="/images/matthew_report.png" width="100%">](https://www.overleaf.com/read/ydqcxkjznwsd) <br> Matthew's Report |
+| [<img src="/images/miguel_report.png" width="100%">](https://www.overleaf.com/read/qbrvkbphsbhq) <br> Miguel's Report| [<img src="/images/matthew_report.png" width="100%">](https://www.overleaf.com/read/ydqcxkjznwsd) <br> Matthew's Report |
 
 **Authors** 
 > [Miguel Garcia Naude](https://github.com/migsdigs), [Matthew Lock](https://github.com/matthew-william-lock)
